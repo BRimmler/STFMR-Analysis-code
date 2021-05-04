@@ -6,20 +6,6 @@ import logging
 
 class Stfmr():
     def __init__(self, hArray, vArray, frequency, inputFileName):
-        """
-        
-
-        Parameters
-        ----------
-        hArray : Array of magnetic Field
-        vArray : Array of voltages
-        frequency : Float
-        inputFileName : String
-        Returns
-        -------
-        None.
-
-        """
         self.fieldArray = hArray
         self.amplitudeArray = vArray
         #self.fieldArray, self.amplitudeArray  = self.assignFieldAndAmpArray(hArray, vArray, minRange, maxRange)
@@ -56,43 +42,11 @@ class Stfmr():
         logging.shutdown()
     
     def correctVasSign(self):
-        """
-        Negative value of DeltaH does not make physicsl sense.
-        This function can flip the the sign of delta H in case fitting gives a negative value. 
-
-        Returns
-        -------
-        None.
-
-        """
         if self.deltaH < 0:
             self.Vas = -self.Vas
             self.deltaH = -self.deltaH
             
     def assignFieldAndAmpArray(self, hArray, vArray, minRange, maxRange):
-        """
-        
-
-        Parameters
-        ----------
-        hArray : Array
-            Magnetic Field
-        vArray : Array
-            Volatge.
-        minRange : float
-            Minimum value of magnetic field for which fitting needs to be done.
-        maxRange : float
-            Maximum value of magnetic field for which fitting needs to be done.
-
-        Returns
-        -------
-        fieldArray : Array
-            Magneitc Field.
-        amplitudeArray : Array
-            Volatge.
-        This fuinction would select data in the given range
-
-        """
         fieldArray = np.array([])
         amplitudeArray = np.array([])
         for field, voltage in zip(hArray, vArray):
@@ -102,103 +56,18 @@ class Stfmr():
         return fieldArray, amplitudeArray
                 
     def denominator(self, H, deltaH, Hres):
-        """
-
-        Parameters
-        ----------
-        H : flaot
-            Magnetic Field.
-        deltaH : float
-            Linewidth.
-        Hres : float
-            Resonance Field.
-
-        Returns
-        -------
-        TYPE
-            Denominator of Lorentzian function .
-
-        """
         return np.square(deltaH) + np.square(H - Hres)
 
     def symmetricFunction(self, H, deltaH, Hres):
-        """
-    
-        Parameters
-        ----------
-        H : flaot
-            Magnetic Field.
-        deltaH : float
-            Linewidth.
-        Hres : float
-            Resonance Field.
-
-        Returns
-        -------
-        float
-            Symmetirc Part of Lorentzian function .
-
-        """
         return np.square(deltaH)/self.denominator(H, deltaH, Hres)
 
     def antiSymmetricFunction(self, H, deltaH, Hres):
-        """
-    
-        Parameters
-        ----------
-        H : flaot
-            Magnetic Field.
-        deltaH : float
-            Linewidth.
-        Hres : float
-            Resonance Field.
-
-        Returns
-        -------
-        float
-            Anti Symmetirc Part of Lorentzian function .
-
-        """
         return (deltaH*(H - Hres))/self.denominator(H, deltaH, Hres)
 
     def vMix(self, H, deltaH, Hres, V0, V1, Vsym, Vas):
-        """
-        
-
-        Parameters
-        ----------
-        H : flaot
-            Magnetic Field.
-        deltaH : float
-            Linewidth.
-        Hres : float
-            Resonance Field.
-        V0 : float
-            DC part of the mixing voltage.
-        V1 : float
-            Linear part of the mixing voltage
-        Vsym : float
-            Symmetric component of the mixing voltage.
-        Vas : float
-            Anti Symmetric component of the mixing voltage..
-
-        Returns
-        -------
-        float
-        Mixing Voltage
-
-        """
         return V0 + V1*H + Vsym*self.symmetricFunction(H, deltaH, Hres) + Vas*self.antiSymmetricFunction(H, deltaH, Hres)
 
     def fitFunction(self):
-        """
-        Create different arrays after fitting
-
-        Returns
-        -------
-        None.
-
-        """
         h = self.fieldArray[-1]
         while (abs(h) < abs(self.fieldArray[0])):
             self.h = np.append(self.h, h)
@@ -214,22 +83,6 @@ class Stfmr():
         logging.debug("self.v: " + str(self.v))
     
     def findDh(self, x, y):
-        """
-        
-
-        Parameters
-        ----------
-        x : Array
-            Array of dependent variables (magnetic field in this case).
-        y : Array
-            Array of independent variables (mixing voltage in this case).
-
-        Returns
-        -------
-        TYPE
-            float: Linewidth.
-
-        """
         for a, b in zip(x, y):
             if b == np.amax(y):
                 amax = a
@@ -239,16 +92,21 @@ class Stfmr():
 
         return amax - amin
     
+#    def vMixFun(self, field):
+#        
+#        return self.vMix(field, self.deltaH, self.Hres, self.V0, self.V1, self.Vsym, self.Vas)
+#    
+#    def symmFun(self, field):
+#        
+#        return self.Vsym*self.symmetricFunction(field, self.deltaH, self.Hres)
+#    
+#    def antisymmFun(self, field):
+#        
+#        return self.Vas*self.antiSymmetricFunction(field, self.deltaH, self.Hres)
+
+
 
     def fitCurve(self):
-        """
-        This function performs actual fitting
-
-        Returns
-        -------
-        None.
-
-        """
         self.fitParams, self.fitConv = curve_fit(self.vMix, self.fieldArray, self.amplitudeArray, self.params, method = 'lm', ftol = 1e-10)
         self.deltaH = self.fitParams[0]
         self.Hres = self.fitParams[1]
@@ -276,19 +134,6 @@ class Stfmr():
         logging.info("\n")
 
     def logparameters(self, arrayx):
-        """
-        
-
-        Parameters
-        ----------
-        arrayx : Array
-            Logs all the fitting parameters given in the array in a file.
-
-        Returns
-        -------
-        None.
-
-        """
         logging.info(self.addStringFloat("DeltaH: ", arrayx[0]))
         logging.info(self.addStringFloat("Hres: ", arrayx[1]))
         logging.info(self.addStringFloat("V0: ", arrayx[2]))
@@ -298,41 +143,9 @@ class Stfmr():
 
     
     def addStringFloat(self, stringvalue, floatValue):
-        """
-        
-
-        Parameters
-        ----------
-        stringvalue : string
-        floatValue : float
-
-        Returns
-        -------
-        String
-            Concatenates the two values.
-
-        """
         return stringvalue + str(floatValue)
     
     def parametersFromFileName(self, inputFileName):
-        """
-        
-
-        Parameters
-        ----------
-        inputFileName :String
-            File Name
-
-        Returns
-        -------
-        current : flaot
-           Value of current from filename.
-        dBm : flaot
-            Value of power from filename..
-        frequency : float
-            Value of frequency from filename..
-
-        """
         underScoreNumber = 0
         
         i = len(inputFileName) - 1 
