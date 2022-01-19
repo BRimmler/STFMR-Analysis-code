@@ -5,21 +5,23 @@ Created on Fri Apr 23 11:37:00 2021
 @author: rimmler
 """
 
+""" This is the input zone. Here we will enter everything which needs to be entered manually """
 # ____________________________________________________________________________
 # SETTINGS
 import numpy as np
 
-g = 2.07
-t = 16.5 # SH material film thickness in nm
-terr = .5
-d = 3. # FM thickness in nm
-derr = .3
-Ms = 900 # saturation magnetization FM layer emu/cm3
-Mserr = 20
+g = 2.07 # Lande constant of the FM [default (Permalloy): 2.07]
+t = 10. # SH material film thickness in nm
+terr = 1. # Error in SH material film thickness in nm
+d = 10. # FM thickness in nm
+derr = 1. # Error in FM thickness in nm
+Ms = 1085 # Saturation magnetization FM layer emu/cm3
+Mserr = 100 # Error in saturation magnetization FM layer emu/cm3
 
-plotDpi = 600
+plotDpi = 600 # Resolution of plots [default: 600]
 
 
+""" Input zone is over! Careful before changing anything unless you know what you are doing! """
 
 # ____________________________________________________________________________
 # Constants
@@ -36,15 +38,8 @@ from tkinter import filedialog
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from stfmrHelpers import File
 
-
-class File:
-    def __init__(self, file):
-        self.file_fulldir = file
-        self.filedir = '/'.join(file.split('/')[:-1])
-        self.filename = file.split('/')[-1]
-        self.fileext = '.' + self.filename.split('.')[-1]
-        self.filename_wo_ext = '.'.join(self.filename.split('.')[:-1])
 
 def kittel(H0, Meff, gamma, mu0):
     ''' With same unit system! '''
@@ -63,7 +58,9 @@ def gilbert(f, mu0, gamma, alpha, delta0):
     return delta
 
 def get_SHA(Vs, Va, Ms, t, d, hbar, Meff, H0):
-    return Vs/Va * (2*e*mu0*Ms*t*d) / (2*hbar) * np.sqrt(1 + Meff/H0)
+    ''' all in SI '''
+    SHA = Vs/Va * (e*mu0*Ms*t*d) / (hbar) * np.sqrt(1 + Meff/H0)
+    return SHA
 
 def get_SHAerr(e, mu0, hbar, Vs, Va, Ms, t, d, Meff, H0,
                d_Vs, d_Va, d_Ms, d_t, d_d, d_Meff, d_H0):
@@ -198,8 +195,8 @@ def lineshapeAnalysis(Vs, Va, MsSI, t, d, hbar, MeffoptSI, H0SI, Vserr, Vaerr, M
 # ____________________________________________________________________________
 root = tk.Tk()
 root.withdraw()
-# inputFile = File(filedialog.askopenfilename(parent=root, title='Choose .csv file with fitting summary'))
-inputFile = File('D:/ANALYSIS/Mn3SnN/ST-FMR/MA2427-1/210401/003_lineshape_15dBm/fittingOutput/000_fittingSummary.csv')
+inputFile = File(filedialog.askopenfilename(parent=root, title='Choose .csv file with fitting summary'))
+# inputFile = File('D:/ANALYSIS/Mn3SnN/ST-FMR/MA2427-1/210401/003_lineshape_15dBm/fittingOutput/000_fittingSummary.csv')
 outputFileGilbert = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_gilbertFit.png')
 outputFileKittel = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_kittelFit.png')
 outputFileLS1 = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_shaPlot.png')
@@ -247,20 +244,22 @@ outputData1['SHA'] = lsSHA
 outputData1['SHAError'] = lsSHAerr
 
 summary = {'g': g,
-           't (nm)': t,
-           'tError (nm)': terr,
-           'd (nm)': d,
-           'dError (nm)': derr,
+           't (m)': t,
+           'tError (m)': terr,
+           'd (m)': d,
+           'dError (m)': derr,
            'Ms (emu/cm3)': Ms,
            'MsError (emu/cm3)': Mserr,
+           'alphaopt': alphaopt,
+           'alphaopterr': alphaopterr,
            'Meffopt (emu/cm3)': MeffoptCGS,
            'MeffoptError (emu/cm3)': MeffopterrCGS
            }
 
 outputData2 = pd.Series(summary)
 
-outputFileLS2 = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_lsOuput1.csv')
-outputFileLS3 = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_lsOuput2.csv')
+outputFileLS2 = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_lineshape_data.csv')
+outputFileLS3 = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_lineshape_params.csv')
 
 outputData1.to_csv(outputFileLS2.file_fulldir, index=False)
 outputData2.to_csv(outputFileLS3.file_fulldir, header=False)

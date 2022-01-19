@@ -4,20 +4,18 @@ Created on Wed Mar 31 13:11:49 2021
 
 @author: rimmler
 """
-import os
-import tkinter as tk
-from tkinter import filedialog
-from stfmrAnalysis import stfmrAnalysis
 
 """ This is the input zone. Here we will enter everything which needs to be entered manually """
 
 # Are you not sure about the range of fitting. Set plotAndCheck to True to get a chance to review
 # Tip: Put only a few representativie file in /toProcess folder before doing it. Unless you want to keep typing the whole day.
 
-measMode = 0 # 2: angle-dependence, any other: no angle dependence
-deviceAngle = 45 # Angle of device with respect to field direction (CCW = positive sense). Ignored if measMode != 2
+# Definition of angles (ignored for non-angle-dependent measurements):
+measMode = 1 # 0: normal, 1: angle-dependence (specify stageAngle in separate file)
+deviceAngle = 0 # Angle of device with respect to sample/crystal axes
+stageAngle = 0 # For angle-dependence defined in separate file
 
-plotANdCheck = 0 # 1: Check each file for selecting the right range, 0: for analysis without checking
+plotAndCheck = 0 # 1: Check each file for selecting the right range, 0: for analysis without checking
 
 plotAllTogether = 0 # 0: Separate files for each curve, 1: Plot all curves together, 2: Separate files as well as together
 
@@ -26,22 +24,23 @@ legendMode = 3 # 0: Frequency, 1: Current, 2: rf power, 3: Current and Frequency
 numberOFHeaderLines = 4
 
 #File Format Inputs
-hAxis = 0 #Unit Oe
-vAxis = 1 #Unit V
+hAxis = 0 # Unit Oe
+vAxis = 1 # Unit V
 
-baseVoltageMultiplier = -1 # Multiplies the voltageArray. For angle dependent measurements multiplied by value specified in freq-angle-corresp. file
+baseVoltageMultiplier = 1 # Multiplies the voltageArray. For angle dependent measurements multiplied by value specified in freq-angle-corresp. file
 
 mSize = 3 # Size of markers in plot
 
+system = 'Berthold' # use to specify file system in stfmrAnalysis
+
 """ Input zone is over! Careful before changing anything unless you know what you are doing! """
 
-class File:
-    def __init__(self, file):
-        self.file_fulldir = file
-        self.filedir = '/'.join(file.split('/')[:-1])
-        self.filename = file.split('/')[-1]
-        self.fileext = '.' + self.filename.split('.')[-1]
-        self.filename_wo_ext = '.'.join(self.filename.split('.')[:-1])
+import os
+import tkinter as tk
+from tkinter import filedialog
+from stfmrAnalysis import stfmrAnalysis
+from stfmrHelpers import File
+
 
 
 def ui_get_IPFiles():
@@ -66,13 +65,15 @@ def ui_get_facFile():
     return File(facfile)
 
 IPFiles = ui_get_IPFiles()
-if measMode == 2:
+if measMode == 1:
     facFile = ui_get_facFile()
 else:
     facFile = None
 
 
-stfmrAnalysis(measMode, deviceAngle, IPFiles, facFile, plotANdCheck, plotAllTogether, legendMode, numberOFHeaderLines, hAxis, vAxis, baseVoltageMultiplier, mSize)
+stfmrAnalysis(measMode, deviceAngle, stageAngle, IPFiles, facFile, plotAndCheck,
+              plotAllTogether, legendMode, numberOFHeaderLines,
+              hAxis, vAxis, baseVoltageMultiplier, mSize, system='')
 
 
 

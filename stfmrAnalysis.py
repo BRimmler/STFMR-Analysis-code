@@ -1,4 +1,4 @@
-''' Credit: Avanindra Pandeya, MPI Halle, Python God <3 '''
+''' Credit: Avanindra Kumar Pandeya, MPI Halle, Python God <3 '''
 
 import os
 from Stfmr import Stfmr
@@ -11,7 +11,7 @@ import pandas as pd
 # from tkinter import filedialog
 
 
-def stfmrAnalysis(measMode, deviceAngle, IPFiles, facFile, plotANdCheck, plotAllTogether, legendMode, numberOFHeaderLines, hAxis, vAxis, baseVoltageMultiplier, mSize):
+def stfmrAnalysis(measMode, deviceAngle, stageAngle, IPFiles, facFile, plotANdCheck, plotAllTogether, legendMode, numberOFHeaderLines, hAxis, vAxis, baseVoltageMultiplier, mSize, system='default'):
 
 # ____________________________________________________________________________
 # Subfunctions
@@ -42,21 +42,28 @@ def stfmrAnalysis(measMode, deviceAngle, IPFiles, facFile, plotANdCheck, plotAll
         else:
             return 360 - abs(angleDiff)
 
+    def get_fieldAngle(deviceAngle, stageAngle):
+        phi = stageAngle-deviceAngle
+        phi_mod = phi % 360 # Module operator to map angle in range 0 to 360 deg
+        return phi_mod
 
 # ____________________________________________________________________________
 
 
-
     outputSubfolder = '/fittingOutput'
-    OPFolder = IPFiles[0].filedir + outputSubfolder
+    if system == 'Berthold':
+        OPFolder = IPFiles[0].filedir.replace('DATA', 'ANALYSIS')+ outputSubfolder
+    else:
+        OPFolder = IPFiles[0].filedir + outputSubfolder
+
     if os.path.isdir(OPFolder) == False:
         os.makedirs(OPFolder)
 
     OPSummaryFileDir = OPFolder + '/000_fittingSummary.csv'
 
 
-    with open(OPSummaryFileDir, "a") as outFile1:
-        outFile1.write("Number,Angle (deg),AngleShifted (deg),Current (mA),rf Power (dBm),Frequency (GHz),DeltaH (Oe),DeltaHError (Oe),Hres (Oe),HresError (Oe),V0 (V),V0Error (V),V1 (V),V1Errror (V),Vsym (V),VsymError (V),Vas (V),VasError (V)\n")
+    with open(OPSummaryFileDir, "w") as outFile1:
+        outFile1.write("Index,stageAngle (deg),fieldAngle (deg),Current (mA),rf Power (dBm),Frequency (GHz),DeltaH (Oe),DeltaHError (Oe),Hres (Oe),HresError (Oe),V0 (V),V0Error (V),V1 (V),V1Errror (V),Vsym (V),VsymError (V),Vas (V),VasError (V)\n")
         # outFile1.write(",deg,deg,mA,dBm,GHz,Oe,Oe,Oe,Oe,V,V,V,V,V,V,V,V\n")
 
     if plotAllTogether != 0:
@@ -67,26 +74,29 @@ def stfmrAnalysis(measMode, deviceAngle, IPFiles, facFile, plotANdCheck, plotAll
     colorNumber = np.linspace(0, 1, len(IPFiles))
     colors = [ cm.gist_rainbow(x) for x in colorNumber ]
 
-    if measMode == 2:
+    if measMode == 1:
         fac = pd.read_csv(facFile.file_fulldir)
-        print(fac)
+        # print(fac)
 
 
     for IPFile in IPFiles:
         current, dBm, frequency, name, number = parametersFromFileName(IPFile.file_fulldir, IPFile.filedir)
         fileParameter[IPFile.file_fulldir] = {"i" : current, "rf": dBm, "f": frequency, "name": name, "number" : number}
 
-        if measMode == 2:
-            angle = float(fac.loc[fac['file_number']==number]['angle'].to_numpy())
-            angleShifted = get_angleShifted(angle, deviceAngle)
+        if measMode == 1:
+            stageAngle = float(fac.loc[fac['file_number']==number]['angle'].to_numpy())
+            fieldAngle = get_fieldAngle(deviceAngle, stageAngle)
             voltageMultiplier = float(fac.loc[fac['file_number']==number]['V_polarity'].to_numpy()) * baseVoltageMultiplier
         else:
-            angle = None
-            angleShifted = None
+            stageAngle = None
+            fieldAngle = None
+            deviceAngle = None
             voltageMultiplier = baseVoltageMultiplier
 
-        fileParameter[IPFile.file_fulldir]['angle'] = angle
-        fileParameter[IPFile.file_fulldir]['angleShifted'] = angleShifted
+
+        fileParameter[IPFile.file_fulldir]['deviceAngle'] = deviceAngle
+        fileParameter[IPFile.file_fulldir]['stageAngle'] = stageAngle
+        fileParameter[IPFile.file_fulldir]['fieldAngle'] = fieldAngle
         fileParameter[IPFile.file_fulldir]['voltageMultiplier'] = voltageMultiplier
 
 
@@ -108,8 +118,13 @@ def stfmrAnalysis(measMode, deviceAngle, IPFiles, facFile, plotANdCheck, plotAll
 
 
     for index, inputFileName in enumerate(sortedInputFileArray):
+        def progress(i, array):
+            print(f'Progress: {i}/{len(array)}')
+
+        progress(index, sortedInputFileArray)
+        print(f'InputFileName: {inputFileName}')
         voltageMultiplier = fileParameter[inputFileName]['voltageMultiplier']
-        angle = fileParameter[inputFileName]['angle']
+        stageAngle = fileParameter[inputFileName]['stageAngle']
         # print('voltageMultiplier = ', voltageMultiplier)
         # print('angle = ', angle)
 
@@ -154,9 +169,10 @@ def stfmrAnalysis(measMode, deviceAngle, IPFiles, facFile, plotANdCheck, plotAll
 
         STFMR = Stfmr(fieldArray, amplitudeArray, fileParameter[inputFileName]["f"], inputFileName)
         with open(OPSummaryFileDir, "a") as outFile1:
+            # print(STFMR.deltaH)
             outFile1.write(str(fileParameter[inputFileName]["number"])+ ',')
-            outFile1.write(str(fileParameter[inputFileName]["angle"])+ ',')
-            outFile1.write(str(fileParameter[inputFileName]["angleShifted"])+ ',')
+            outFile1.write(str(fileParameter[inputFileName]["stageAngle"])+ ',')
+            outFile1.write(str(fileParameter[inputFileName]["fieldAngle"])+ ',')
             outFile1.write( str(fileParameter[inputFileName]["i"]) +',' + str(fileParameter[inputFileName]["rf"]) +',' + str(fileParameter[inputFileName]["f"]) + ',')
             outFile1.write( str(STFMR.deltaH) +',' +  str(STFMR.deltaHErr) +',')
             outFile1.write( str(STFMR.Hres) +',' +  str(STFMR.HresErr) +',')
@@ -165,8 +181,8 @@ def stfmrAnalysis(measMode, deviceAngle, IPFiles, facFile, plotANdCheck, plotAll
             outFile1.write(str(STFMR.Vsym) +',' +  str(STFMR.VsymErr) + ',')
             outFile1.write(str(STFMR.Vas) +',' +  str(STFMR.VasErr) + ',\n')
         with open(OPFolder + '/' + IPFileObject.filename_wo_ext + '_fit.csv', "w") as outFile2:
-            outFile2.write("Angle: %s mA \n" %fileParameter[inputFileName]["i"])
-            outFile2.write("Current: %s deg \n" %fileParameter[inputFileName]["angle"])
+            outFile2.write("stageAngle: %s mA \n" %fileParameter[inputFileName]["i"])
+            outFile2.write("Current: %s deg \n" %fileParameter[inputFileName]["stageAngle"])
             outFile2.write("Frequency: %.2f GHz \n" %fileParameter[inputFileName]["f"])
             outFile2.write("Field,Vmix,Vsym,Vas,V0,V1\n")
             outFile2.write("Oe,V,V,V,V,V\n")
@@ -193,6 +209,8 @@ def stfmrAnalysis(measMode, deviceAngle, IPFiles, facFile, plotANdCheck, plotAll
         legendFitting = legendFitting + r"$H_{res}$: %.2e $\pm$ %.1e" % (STFMR.Hres, STFMR.HresErr)
 
         if plotAllTogether != 1 :
+            # print('cekc')
+            # print(STFMR.h)
             fig, ax = plt.subplots()
             ax.plot( fieldArray, amplitudeArray, "ro", label = legend, markersize = mSize)
             ax.plot(STFMR.h, STFMR.v, label = legendFitting)

@@ -40,13 +40,14 @@ def changeListToString(list1):
 root = tk.Tk()
 root.lift()
 root.withdraw()
-path = tk.filedialog.askdirectory(parent=root, title='Choose a folder containing a fit parameter file')
+# path = tk.filedialog.askdirectory(parent=root, title='Choose a folder containing a fit parameter file')
+path = tk.filedialog.askopenfilename(parent=root, title='Select input file')
 number_of_header_lines = 2
-currentAxis = 0
-frequencyAxis = 2
-delataHAxis = 3
-delataHErrorAxis = 4
-hResAxis = 5
+currentAxis = 2
+frequencyAxis = 4
+delataHAxis = 5
+delataHErrorAxis = 6
+hResAxis = 7
 error_in_hRes = 50
 file_pre_slice = 5
 file_post_slice = 43
@@ -97,6 +98,7 @@ def formatWithComma (Field, x, xerr):
 
     """
     return str(Field) + ", " + str(x) + ", +/-, " + str(xerr) + "\n"
+
 for inputFileName in nameFileArray:
     if inputFileName[-3:] == 'dat':
             delim = '\t'
@@ -119,7 +121,7 @@ path_out = path + '/output'
 if os.path.isdir(path_out) == False:
     os.makedirs(path_out)
 np.savetxt(path_out+"/NotAnalyzed.csv",couldNotAnalyzeArray, fmt='%s', delimiter= ","  )
-with open(path_out + '/FittingParam.csv', "a") as outFile1:
+with open(path_out + '/FittingParam.csv', "w") as outFile1:
     outFile1.write("FileName,DeviceName,Frequency,Positive Slope, Positive Slope Error, Negative Slope, Negative Slope Error, Average Slope, Average Slope Error, Positive DeltaH, Positive DeltaH Error, Negative DeltaH, Negative DeltaHError\n")
     outFile1.write(",,Ghz,Oe/mA,Oe/mA,Oe/mA,Oe/mA,Oe/mA,Oe/mA,Oe,Oe,Oe,Oe\n")
 for lw_item1 in lineWidthAnalysisArray:
@@ -166,7 +168,7 @@ for lw_item1 in lineWidthAnalysisArray:
                 plt.show()
 
                 fig.savefig(outputFileName[:-4] + ".pdf" + ".pdf", dpi = 600, bbox_inches="tight")
-                with open(path + '/output/FititngParam.csv', "a") as outFile1:
+                with open(path + '/output/FittingParam.csv', "a") as outFile1:
                     outFile1.write(str(lw_item1.fileName) + ',' + str(lw_item1.fileName[-9:-6]) + ',' + str(lw_item1.frequency) + ',' +
                                    str(lw_item1.slope) + ','  + str(lw_item1.slopeError)+ ',' +
                                    str(lw_item2.slope) + ',' + str(lw_item2.slopeError)+ ',' +
