@@ -11,11 +11,11 @@ Created on Fri Apr 23 11:37:00 2021
 import numpy as np
 
 g = 2.07 # Lande constant of the FM [default (Permalloy): 2.07]
-t = 10. # SH material film thickness in nm
+t = 20. # SH material film thickness in nm
 terr = 1. # Error in SH material film thickness in nm
 d = 10. # FM thickness in nm
 derr = 1. # Error in FM thickness in nm
-Ms = 1085 # Saturation magnetization FM layer emu/cm3
+Ms = 1040 # Saturation magnetization FM layer emu/cm3
 Mserr = 100 # Error in saturation magnetization FM layer emu/cm3
 
 plotDpi = 600 # Resolution of plots [default: 600]
@@ -197,9 +197,12 @@ root = tk.Tk()
 root.withdraw()
 inputFile = File(filedialog.askopenfilename(parent=root, title='Choose .csv file with fitting summary'))
 # inputFile = File('D:/ANALYSIS/Mn3SnN/ST-FMR/MA2427-1/210401/003_lineshape_15dBm/fittingOutput/000_fittingSummary.csv')
-outputFileGilbert = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_gilbertFit.png')
-outputFileKittel = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_kittelFit.png')
-outputFileLS1 = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_shaPlot.png')
+
+outputSubdir = 'lineshapeAnaOutput/'
+outputFileGilbert = File(inputFile.filedir + '/' + outputSubdir + inputFile.filename_wo_ext + '_gilbertFit.png')
+outputFileGilbert.makeDirIfNotExist()
+outputFileKittel = File(inputFile.filedir + '/' + outputSubdir + inputFile.filename_wo_ext + '_kittelFit.png')
+outputFileLS1 = File(inputFile.filedir + '/' + outputSubdir + inputFile.filename_wo_ext + '_shaPlot.png')
 
 inputData = pd.read_csv(inputFile.file_fulldir,index_col=False)
 
@@ -258,8 +261,8 @@ summary = {'g': g,
 
 outputData2 = pd.Series(summary)
 
-outputFileLS2 = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_lineshape_data.csv')
-outputFileLS3 = File(inputFile.filedir + '/' + inputFile.filename_wo_ext + '_lineshape_params.csv')
+outputFileLS2 = File(inputFile.filedir + '/' + outputSubdir + inputFile.filename_wo_ext + '_lineshape_data.csv')
+outputFileLS3 = File(inputFile.filedir + '/' + outputSubdir + inputFile.filename_wo_ext + '_lineshape_params.csv')
 
 outputData1.to_csv(outputFileLS2.file_fulldir, index=False)
 outputData2.to_csv(outputFileLS3.file_fulldir, header=False)

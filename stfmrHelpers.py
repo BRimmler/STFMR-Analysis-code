@@ -5,6 +5,7 @@ Created on Fri May 14 11:13:20 2021
 @author: rimmler
 """
 import os
+import pandas as pd
 
 class File:
     def __init__(self, file):
@@ -41,3 +42,6 @@ class File2:
             os.makedirs(self.fileDir)
             print(self.fileDir+' created.')
 
+
+def read_csv_Series(file):
+    return pd.read_csv(file, header = None, index_col = 0, squeeze = True)

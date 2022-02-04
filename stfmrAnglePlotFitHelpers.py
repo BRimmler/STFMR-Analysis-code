@@ -7,7 +7,7 @@ Created on Wed Aug 25 11:46:02 2021
 
 import tkinter as tk
 from tkinter import filedialog
-from stfmrHelpers import File
+from stfmrHelpers import File, read_csv_Series
 import numpy as np
 import pandas as pd
 
@@ -87,20 +87,18 @@ def get_cps(ipFileLocationsFile=None, print_extracted_params=False):
         root.withdraw()
         ipFileLocationsFile = File(filedialog.askopenfilename(parent=root, title='Choose .csv file with locations of required output files'))
 
-    def _read_csv_Series(file):
-        return pd.read_csv(file, header = None, index_col = 0, squeeze = True)
-    ipFileLocations = _read_csv_Series(ipFileLocationsFile.file_fulldir)
+    ipFileLocations = read_csv_Series(ipFileLocationsFile.file_fulldir)
 
     ipFileLS = File(ipFileLocations['lineshape analysis output'])
     ipFilePhiDep = File(ipFileLocations['angle dependence fitting summary'])
     ipFileIrf = File(ipFileLocations['Irf calibration fitting output'])
     ipFileAMR = File(ipFileLocations['AMR measurement fitting output'])
 
-    LSData = _read_csv_Series(ipFileLS.file_fulldir)
+    LSData = read_csv_Series(ipFileLS.file_fulldir)
     PhiDepData = pd.read_csv(ipFilePhiDep.file_fulldir)
     # return PhiDepData
-    IrfData = _read_csv_Series(ipFileIrf.file_fulldir)
-    AMRData = _read_csv_Series(ipFileAMR.file_fulldir)
+    IrfData = read_csv_Series(ipFileIrf.file_fulldir)
+    AMRData = read_csv_Series(ipFileAMR.file_fulldir)
 
     alpha = LSData['alphaopt']
     Meff = LSData['Meffopt (emu/cm3)'] # emu/cm3

@@ -11,9 +11,10 @@ Created on Wed Mar 31 13:11:49 2021
 # Tip: Put only a few representativie file in /toProcess folder before doing it. Unless you want to keep typing the whole day.
 
 # Definition of angles (ignored for non-angle-dependent measurements):
-measMode = 1 # 0: normal, 1: angle-dependence (specify stageAngle in separate file)
-deviceAngle = 0 # Angle of device with respect to sample/crystal axes
-stageAngle = 0 # For angle-dependence defined in separate file
+measMode = 0 # 0: normal, 1: angle-dependence (specify stageAngle in separate file)
+deviceAngle = 90 # Angle of device with respect to sample/crystal axes
+stageAngle = 45 # For angle-dependence defined in separate file
+offsetField = -16 # Oe, offset field of the magnet
 
 plotAndCheck = 0 # 1: Check each file for selecting the right range, 0: for analysis without checking
 
@@ -71,10 +72,10 @@ else:
     facFile = None
 
 
-stfmrAnalysis(measMode, deviceAngle, stageAngle, IPFiles, facFile, plotAndCheck,
+stfmrAna = stfmrAnalysis(measMode, deviceAngle, stageAngle, offsetField, IPFiles, facFile, plotAndCheck,
               plotAllTogether, legendMode, numberOFHeaderLines,
-              hAxis, vAxis, baseVoltageMultiplier, mSize, system='')
-
+              hAxis, vAxis, baseVoltageMultiplier, mSize, system)
+stfmrAna.do()
 
 
 
