@@ -1,10 +1,12 @@
 ''' Credit: Avanindra Kumar Pandeya, MPI Halle, Python God <3 '''
 
+import sys
+sys.path.append("..")
 import os
-from Stfmr import Stfmr
+from stfmrSpectraFitting import stfmrSpectraFitting
 import numpy as np
 import matplotlib.pyplot as plt
-import stfmrRange
+import stfmrRanges
 from matplotlib import cm
 import pandas as pd
 # import tkinter as tk
@@ -165,8 +167,8 @@ class stfmrAnalysis:
                 maxRange = float(input ("Type the MAXIMUM field value for fitting\n"))
     
             else:
-                minRange = stfmrRange.minRange[fileParameter[inputFileName]["f"]]
-                maxRange = stfmrRange.maxRange[fileParameter[inputFileName]["f"]]
+                minRange = stfmrRanges.minRange[fileParameter[inputFileName]["f"]]
+                maxRange = stfmrRanges.maxRange[fileParameter[inputFileName]["f"]]
     
             for field, voltage in zip(hArray, vArray):
                 if abs(field) >= abs(minRange) and abs(field) <= abs(maxRange):
@@ -177,7 +179,7 @@ class stfmrAnalysis:
             fieldArray -= self.offsetField
     
             # Do fitting:
-            stfmrFit = Stfmr(fieldArray, amplitudeArray, fileParameter[inputFileName]["f"], inputFileName)
+            stfmrFit = stfmrSpectraFitting(fieldArray, amplitudeArray, fileParameter[inputFileName]["f"], inputFileName)
             
             # For summary file
             outFile1ContLine = {

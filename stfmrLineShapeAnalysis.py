@@ -38,7 +38,7 @@ from tkinter import filedialog
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from stfmrHelpers import File
+from helpers.stfmrHelpers import File
 
 
 def kittel(H0, Meff, gamma, mu0):

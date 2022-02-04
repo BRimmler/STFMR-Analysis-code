@@ -17,6 +17,7 @@ select_files_ui = False
 
 fit_comps_list = ['y', 'xy', 'yz', 'xyz']
 
+opFileSubdir = '/angleDependence/'
 plotDpi = 600
 
 
@@ -26,10 +27,10 @@ import tkinter as tk
 from tkinter import filedialog
 import pandas as pd
 import matplotlib.pyplot as plt
-from stfmrHelpers import File, File2, read_csv_Series
+from helpers.stfmrHelpers import File, File2, read_csv_Series
 import numpy as np
-import stfmrAnglePlotFitFunc as apff
-import stfmrAnglePlotFitHelpers as aph
+import functions.stfmrAnglePlotFitFunc as apff
+import helpers.stfmrAnglePlotFitHelpers as aph
 
 inputFiles = []
 ipFileLocations = []
@@ -40,12 +41,14 @@ if select_files_ui is True:
                                                             title='Choose .csv file with input file locations'))]
 else:
     ipFileLocationsFiles = [
-        File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-1\220131\D1_0deg\02_angle-dependence\fittingOutput\anglePlots\MA2959-2-D1_angleDep_input_files.csv'),
-        File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-1\220131\D3_45deg\01_angle-dependence\fittingOutput\anglePlots\MA2959-2-D3_angleDep_input_files.csv'),
-        File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220202\D1_0deg\003_angle-dependence\fittingOutput\anglePlots\MA2960-2-D1_angleDep_input_files.csv')
+        File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D1_0deg\02_angle-dependence\fittingOutput\angleDependence\MA2959-2-D1_angleDep_input_files.csv'),
+        File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D3_45deg\01_angle-dependence\fittingOutput\angleDependence\MA2959-2-D3_angleDep_input_files.csv'),
+        File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220202\D1_0deg\003_angle-dependence\fittingOutput\angleDependence\MA2960-2-D1_angleDep_input_files.csv'),
+        File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220203\D4_90deg\002_angle-dependence\pos_field\fittingOutput\angleDependence\MA2960-2-D4_angleDep_input_files.csv')
         ]
 
 for ipFileLocationsFile in ipFileLocationsFiles:
+    
     ipFileLocations = read_csv_Series(ipFileLocationsFile.file_fulldir)
     ipAngleDepFittingSummaryFile = File(ipFileLocations['angle dependence fitting summary'])
     inputData = pd.read_csv(ipAngleDepFittingSummaryFile.file_fulldir,index_col=False)
@@ -101,7 +104,7 @@ for ipFileLocationsFile in ipFileLocationsFiles:
             suffix = '_norm'
         else:
             suffix = ''
-        opFileDir = ipAngleDepFittingSummaryFile.filedir + '/anglePlots/fittingOutput/'
+        opFileDir = ipAngleDepFittingSummaryFile.filedir + opFileSubdir
         opFileParams = File2(opFileDir, 'fitparams_summary'+suffix+'.csv')
         # opParamsSum = pd.DataFrame(columns=['fit_comps',
         #                                     'tau_xAD', 'tau_xFL', 'tau_yAD', 'tau_yFL', 'tau_zAD', 'tau_zFL',

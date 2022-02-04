@@ -21,13 +21,11 @@ from tkinter import filedialog
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import stfmrLineWidthAnalysisHelpers as hlp
+import helpers.stfmrLineWidthAnalysisHelpers as hlp
 from scipy.optimize import curve_fit
-import sys
-sys.path.append(r'D:\owncloud\0_Personal\ANALYSIS\code_modules')
-from br_file import File
-import br_utils as ut
-from br_plot import GenPlot, BoxText
+from base_modules.files import File
+import base_modules.helpers as ut
+from base_modules.plots import GenPlot, BoxText
 from scipy import constants
 
 # Get input data

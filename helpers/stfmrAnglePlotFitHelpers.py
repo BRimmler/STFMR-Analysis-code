@@ -78,7 +78,7 @@ def get_cps(ipFileLocationsFile=None, print_extracted_params=False):
         P_dBm_array = PhiDepData['rf Power (dBm)'].to_numpy()
         P_dBm = np.average(P_dBm_array)
         for p in P_dBm_array:
-            if abs(p-P_dBm) > 0:
+            if abs(p-P_dBm) > 1e-3: # allow for 1e-3 averaging error
                 raise ValueError('Prf is not constant throughout the angle-dependent measurement')
         return P_dBm
 
@@ -113,7 +113,6 @@ def get_cps(ipFileLocationsFile=None, print_extracted_params=False):
     Ms_SI = Ms * 1e3 # A/m
 
     m = float(IrfData['m (A/sqrt(mW))'])
-
     Prf_dBm = get_P(PhiDepData)
     Prf_mW = conv_dBm_mW(Prf_dBm)
     Irf = m * np.sqrt(Prf_mW) # A

@@ -2,9 +2,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 import logging
 
-
-
-class Stfmr():
+class stfmrSpectraFitting:
     def __init__(self, hArray, vArray, frequency, inputFileName):
         self.fieldArray = hArray
         self.amplitudeArray = vArray

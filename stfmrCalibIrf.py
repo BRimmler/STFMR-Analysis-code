@@ -20,7 +20,7 @@ import tkinter as tk
 from tkinter import filedialog
 import pandas as pd
 import matplotlib.pyplot as plt
-from stfmrHelpers import File, File2
+from helpers.stfmrHelpers import File, File2
 import numpy as np
 from scipy.optimize import curve_fit
 from scipy.stats import linregress

@@ -14,9 +14,6 @@ inputDir = r'D:\DATA\Mn3SnN\ST-FMR\MA2959-2\210805\003_angle-dependence_D1'
 inputExt = '.txt'
 outputDir = inputDir + r'\reversed_field_sweep'
 
-
-
-
 import os
 
 class File:

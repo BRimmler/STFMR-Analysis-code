@@ -39,8 +39,8 @@ system = 'Berthold' # use to specify file system in stfmrAnalysis
 import os
 import tkinter as tk
 from tkinter import filedialog
-from stfmrAnalysis import stfmrAnalysis
-from stfmrHelpers import File
+from modules.stfmrAnalysis import stfmrAnalysis
+from helpers.stfmrHelpers import File
 
 
 
