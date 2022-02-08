@@ -8,14 +8,15 @@ Created on Thu Nov 11 11:15:55 2021
 ''' IMPORTS '''
 import matplotlib.pyplot as plt
 import pandas as pd
-from files import File
-import plots_settings as st
+import numpy as np
+from .files import File
+from .plots_settings import errorbar_cap_size
 
 ''' CLASSES '''
 class GenPlot:
     """ Generic plot class """
     def __init__(self,
-                 mode='basic',xlabel='',ylabel='',title='',
+                 mode='basic',xlabel='',ylabel='',title='', save_label=None,
                  **kwargs):
         self._get_mode(mode)
         self.ax_running_nb = 0
@@ -32,8 +33,22 @@ class GenPlot:
                 axi.set_xlabel(xlabel)
                 axi.tick_params(direction='in',top=True,right=True)
                 axi.ticklabel_format(axis='both', style='sci', useOffset=False)
+                
+        elif mode == 'pass-axes':
+            fig = plt.figure()
+            try:
+                ax = []
+                for axis in kwargs['axes']:
+                    ax.append(axis)
+            except:
+                raise ValueError('Define axes')
 
         fig.suptitle(title)
+        
+        if save_label is None:
+            self.save_label = title
+        else:
+            self.save_label = save_label
 
         self.fig = fig
         self.ax = ax
@@ -41,7 +56,7 @@ class GenPlot:
 
 
     def _get_mode(self, mode):
-        modes = ['basic', 'vstack-share-x']
+        modes = ['basic', 'vstack-share-x', 'pass-axes']
         if type(mode) is str and mode in modes:
             self.mode = mode
         elif type(mode) is int:
@@ -50,8 +65,11 @@ class GenPlot:
     def _append_data(self, x, y, label):
         x = pd.Series(x, name=label+'_x')
         y = pd.Series(y, name=label+'_y')
-        self.data = pd.concat([self.data, x],axis=1)
-        self.data = pd.concat([self.data, y], axis=1)
+        
+        self.data.merge(x, left_index=True, right_index=True)
+        self.data.merge(y, left_index=True, right_index=True)
+        # self.data = pd.concat([self.data, x],axis=1)
+        # self.data = pd.concat([self.data, y], axis=1)
 
     def _pass_plot(self, mode, x, y, axis, xerr=None, yerr=None, **kwargs):
         # print(kwargs)
@@ -61,6 +79,7 @@ class GenPlot:
             ax = self.ax[axis]
         else:
             raise
+            
 
         if 'label' in kwargs:
             label = kwargs['label']
@@ -72,11 +91,16 @@ class GenPlot:
             ax.plot(x, y, **kwargs)
         elif mode == 'scatter':
             ax.scatter(x, y, **kwargs)
+        elif mode == 'bar':
+            x_ticks = np.arange(len(x))
+            ax.bar(x_ticks, y, **kwargs)
+            ax.set_xticks(x_ticks)
+            ax.set_xticklabels(x)
 
         # Error bar plots
         if mode in ['errorbar', 'errorbar_scatter']:
             if not 'capsize' in kwargs:
-                capsize=st.errorbar_cap_size # If capsize not defined take from settings file
+                capsize=errorbar_cap_size # If capsize not defined take from settings file
                 kwargs['capsize'] = capsize
             if mode == 'errorbar':
                 ax.errorbar(x, y, xerr, yerr, **kwargs)
@@ -84,6 +108,7 @@ class GenPlot:
                 ax.errorbar(x, y, xerr, yerr, fmt="o", **kwargs)
             else:
                 raise
+                
 
         ax.legend()
         self._append_data(x, y, label)
@@ -100,6 +125,9 @@ class GenPlot:
 
     def errorbar_scatter(self, x, y, axis=0, xerr=None, yerr=None, **kwargs):
         self._pass_plot('errorbar_scatter', x, y, xerr, yerr, axis, **kwargs)
+        
+    def bar(self, x, y, axis=0, xerr=None, yerr=None, **kwargs):
+        self._pass_plot('bar', x, y, xerr, yerr, axis, **kwargs)
 
     def make_nonsci_axis(self, axis='both'):
         self.ax.ticklabel_format(axis=axis, style='plain', useOffset=False)
@@ -115,9 +143,18 @@ class GenPlot:
         bt = boxtext
         ax.text(bt.pos_x, bt.pos_y, boxtext.full_text, verticalalignment=bt.verticalalignment,
                 transform=ax.transAxes, bbox=bt.props, fontsize=bt.fontsize)
+        
+    # def get_data_from_axes(self):
+    #     for axis in self.axes:
+    #         xdata = axis.get_xdata(orig=True)
+    #         ydata= axis.get_ydata(orig=True)
+    #         self._append_data(xdata, ydata, label=)
+        
 
 
-    def report(self, opDir, opName, SI=(), saveData=False, fig_ext='.png', dat_ext='.csv'):
+    def report(self, opDir, opName=None, SI=(), saveData=False, fig_ext='.png', dat_ext='.csv'):
+        if opName is None:
+            opName = self.save_label
         if opName.split('.')[-1] in ['png', 'csv']:
             opName = opName[:-4]
         for ext in [fig_ext, dat_ext]:

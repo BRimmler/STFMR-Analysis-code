@@ -188,6 +188,21 @@ def item_to_param(key, val):
     arg, unit = key_split
     return Param(arg, float(val), unit)
 
+def add_constant_column(df, name, val):
+    # adding column with constant value
+    df[name] = pd.Series([val for x in range(len(df.index))])
+    return df
+    
+def shift_column_to_pos(df, col_name, loc):
+    col = df[col_name]
+    df = df.drop(columns=[col_name])
+    df.insert(loc=loc, column=col_name, value=col)
+    return df
+    
+def shift_column_to_start(df, col_name):
+    df = shift_column_to_pos(df, col_name, 0)
+    return df
+
 # _____________________________________________________________________________
 # SI and CGS system (who the fuck invented this shit??!!)
 

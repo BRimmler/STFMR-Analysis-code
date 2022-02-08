@@ -7,7 +7,7 @@ Created on Wed Aug 25 11:46:02 2021
 
 import tkinter as tk
 from tkinter import filedialog
-from stfmrHelpers import File, read_csv_Series
+from helpers.stfmrHelpers import File, read_csv_Series
 import numpy as np
 import pandas as pd
 

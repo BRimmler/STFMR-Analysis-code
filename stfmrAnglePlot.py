@@ -29,7 +29,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from helpers.stfmrHelpers import File, File2, read_csv_Series
 import numpy as np
-import functions.stfmrAnglePlotFitFunc as apff
+import modules.stfmrAnglePlotFitting as apf
 import helpers.stfmrAnglePlotFitHelpers as aph
 
 inputFiles = []
@@ -117,13 +117,13 @@ for ipFileLocationsFile in ipFileLocationsFiles:
     
             x_plt = np.linspace(0, 360, 100)
             if c_free == True:
-                Vs_fit_opt, Vs_fit_cov, Vs_fit, Vs_plt = apff.opt_Vs_ana_free(fit_comps, x, Vs, x_plt)
-                Va_fit_opt, Va_fit_cov, Va_fit, Va_plt = apff.opt_Va_ana_free(fit_comps, x, Vas, x_plt)
+                Vs_fit_opt, Vs_fit_cov, Vs_fit, Vs_plt = apf.opt_Vs_ana_free(fit_comps, x, Vs, x_plt)
+                Va_fit_opt, Va_fit_cov, Va_fit, Va_plt = apf.opt_Va_ana_free(fit_comps, x, Vas, x_plt)
                 params = aph.get_torques(fit_comps, Vs_fit_opt, Va_fit_opt)
             else:
                 cps = aph.get_cps(ipFileLocationsFile)
-                params, Vs_fit, Vs_plt, Va_fit, Va_plt = apff.opt_V_ana_full(fit_comps, x, Vs, Vas, x_plt, cps)
-                sotr = apff.get_sotr(params, cps) # spin torque ratios
+                params, Vs_fit, Vs_plt, Va_fit, Va_plt = apf.opt_V_ana_full(fit_comps, x, Vs, Vas, x_plt, cps)
+                sotr = apf.get_sotr(params, cps) # spin torque ratios
     
             def calc_r2(y, y_fit):
                 ss_res = np.sum((y - y_fit) ** 2) # residual sum of squares
