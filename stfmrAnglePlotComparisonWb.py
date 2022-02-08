@@ -4,16 +4,18 @@ Created on Fri Feb  4 12:40:28 2022
 
 Workbook to compare analysis of angle-dependences of different samples.
 
+Requires BRimmler/analysis-modules library (add to PATH)
+
 @author: rimmler
 """
 
 # ____________________________________________________________________________
 # SETTINGS
 ipFileDirNames = [
-    r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D1_0deg\02_angle-dependence\fittingOutput\angleDependence\fitparams_summary.csv',
-    r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D3_45deg\01_angle-dependence\fittingOutput\angleDependence\fitparams_summary.csv',
-    r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220202\D1_0deg\003_angle-dependence\fittingOutput\angleDependence\fitparams_summary.csv',
-    r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220203\D4_90deg\002_angle-dependence\pos_field\fittingOutput\angleDependence\fitparams_summary.csv'
+    # r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D1_0deg\02_angle-dependence\fittingOutput\angleDependence\fitparams_summary.csv',
+    # r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D3_45deg\01_angle-dependence\fittingOutput\angleDependence\fitparams_summary.csv',
+    # r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220202\D1_0deg\003_angle-dependence\fittingOutput\angleDependence\fitparams_summary.csv',
+    # r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220203\D4_90deg\002_angle-dependence\pos_field\fittingOutput\angleDependence\fitparams_summary.csv'
     ]
 
 sampleNames = ['MA2959-2-D1', 'MA2959-2-D3', 'MA2960-2-D1', 'MA2960-2-D4']
@@ -25,9 +27,9 @@ opDir = r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\ProjE-synthesis\220204'
 
 # ____________________________________________________________________________
 # MODULES
-from base_modules.files import File 
-import base_modules.helpers as hlp
-from base_modules.plots import GenPlot
+from files import File 
+import helpers as hlp
+from plots import GenPlot
 import pandas as pd
 # import matplotlib.pyplot as plt
 
