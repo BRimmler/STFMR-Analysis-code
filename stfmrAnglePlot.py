@@ -31,7 +31,9 @@ Analysis mode:
         Quantitative fitting. Torques have quantitative meaning. 
         Requirements: a)-c)
 '''
-analysisMode = 2
+analysisMode = 1
+norm_to = 'yFL' # Only for mode 1. Specify which torque component to normalize to.
+fit_phi_offset = True # Only implements for c-free mode
 fit_comps_list = ['xyz'] # Select assumed torque components
 
 plotDpi = 600
@@ -48,8 +50,9 @@ from plots import GenPlot, BoxText
 from helpers.file_handling import read_csv_Series
 import numpy as np
 import modules.stfmrAnglePlotFitting as apf
-from modules.stfmrAnglePlotFittingCFree import angleDepFittingCFree
+from modules.stfmrAnglePlotFittingCFree import angleDepFittingCFree, get_norm_torques
 import helpers.stfmrAnglePlotFitHelpers as aph
+from helpers.maths_helpers import rad2deg
 
 inputFiles = []
 ipFileLocations = []
@@ -140,9 +143,17 @@ for ipFileLocationsFile in ipFileLocationsFiles:
             x_plt = np.linspace(0, 360, 100)
             
             cps = aph.get_cps(1, ipFileLocationsFile)
-            params, params_dict, Vamr, torques, Vs_fit, Vs_plt, Va_fit, Va_plt = angleDepFittingCFree(x, x_plt, Vs, Vas, cps, 
-                                                                                                      fit_comps, do_check_fit=False)
-            # sotr = apf.get_sotr(params, cps) # spin torque ratios
+            fitting_output = angleDepFittingCFree(x, x_plt, Vs, Vas, cps, fit_comps, fit_phi_offset, do_check_fit=False)
+            
+            params, params_dict, Vs_fit, Vs_plt, Va_fit, Va_plt = fitting_output
+            torques, torques_norm = get_norm_torques(params, norm_to)
+            if not params_dict['Vamr_s'] == params_dict['Vamr_a']:
+                raise # They are forced to be the same
+            Vamr = params_dict['Vamr_s']
+            if not params_dict['phi0_s'] == params_dict['phi0_a']:
+                raise 
+            Vamr = params_dict['Vamr_s']
+            phi0 = rad2deg(params_dict['phi0_s'])
     
             phiDepPlt.plot(x_plt, Vs_plt/voltageDivider, label=f'Vs_fit_{fit_comps}')
             phiDepPlt.plot(x_plt, Va_plt/voltageDivider, label=f'Va_fit_{fit_comps}')
@@ -150,10 +161,12 @@ for ipFileLocationsFile in ipFileLocationsFiles:
             box = BoxText(1.03, 1)
             box.add_text('Fitted params:')
             box.add_empty_line()
-            box.add_param('Vamr', params_dict['Vamr_s'], rep='e')
-            for key, param in params.items():
-                if key in ['xAD', 'xFL', 'yAD', 'yFL', 'zAD', 'zFL']:
-                    box.add_param(key, param.value)                
+            box.add_param('Vamr', Vamr, rep='e')
+            box.add_param('phi0', phi0)
+            for key, param in torques.items():
+                box.add_param(key, param)              
+            for key, param in torques_norm.items():
+                box.add_param(key, param)
                 
             phiDepPlt.make_boxtext(box)
     
@@ -161,7 +174,7 @@ for ipFileLocationsFile in ipFileLocationsFiles:
             opFileFig.makeDirIfNotExist()
             phiDepPlt.report(opFileFig.fileDir, opFileFig.fileName, saveData=True)
             
-            opParams = pd.Series(params_dict)
+            opParams = pd.Series(params_dict|torques_norm)
             opParams['fit_comps'] = fit_comps
     
             opParamsSum = opParamsSum.append(opParams, ignore_index=True)

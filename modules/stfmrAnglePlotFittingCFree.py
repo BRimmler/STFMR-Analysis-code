@@ -9,22 +9,24 @@ import numpy as np
 
 from lmfit import Parameters, minimize, report_fit
 from modules.functions.stfmrAnglePlotMixingEffs import comp_Vs, comp_Va
-from modules.stfmrAnglePlotFitting import deg2rad
+from helpers.maths_helpers import deg2rad
+
+default_torques = ['xAD', 'xFL', 'yAD', 'yFL', 'zAD', 'zFL']
 
 def angleDepFittingCFree(phi_data, phi_plt, Vs_data, Va_data, 
-                            cps, comps, do_check_fit=False, do_lmfit_report=False):
+                            cps, comps, fit_phi_offset=False, do_check_fit=False, do_lmfit_report=False):
     ''' Alternative fitting procedure for fitting angle dependence. Herein, 
     the AMR voltage is taken as a fitting parameter in the two equations of
     Vs and Va '''
     
     def Vs_dataset(params, phi):
-        Vs = comp_Vs(phi, params['Vamr_s'], 
+        Vs = comp_Vs(phi, params['phi0_s'], params['Vamr_s'], 
                      params['alpha'], params['H0'], params['Meff'], 
                      params['xAD'], params['yAD'], params['zFL'])
         return Vs
     
     def Va_dataset(params, phi):
-        Va = comp_Va(phi, params['Vamr_a'], 
+        Va = comp_Va(phi, params['phi0_a'],params['Vamr_a'], 
                      params['alpha'], params['H0'], params['Meff'], 
                      params['xFL'], params['yFL'], params['zAD'])
         return Va
@@ -63,6 +65,8 @@ def angleDepFittingCFree(phi_data, phi_plt, Vs_data, Va_data,
     # Fitting parameters:
     fit_params.add('Vamr_s', value=-1e-3, max=0, min=-1e-2) # AMR voltage in equation for Vs
     fit_params.add('Vamr_a', expr='Vamr_s')
+    fit_params.add('phi0_s', value=0, max=deg2rad(10), min=deg2rad(-10))
+    fit_params.add('phi0_a', expr='phi0_s')
     
     for comp in ['x', 'y', 'z']:
         if comp in comps: 
@@ -101,15 +105,32 @@ def angleDepFittingCFree(phi_data, phi_plt, Vs_data, Va_data,
         params_dict[key] = out.params[key].value
         
     torques = {}
-    for key in ['xAD', 'xFL', 'yAD', 'yFL', 'zAD', 'zFL']:
+    for key in default_torques:
         torques[key] = out.params[key].value
         
-    Vamr = out.params['Vamr_s'].value
+    return out.params, params_dict, Vs_fit, Vs_plt, Va_fit, Va_plt
+
+
+
+def get_norm_torques(params, norm_to):
+    ''' Get normalized torques from fitting parameter output '''
+    if not params['Vamr_s'].value == params['Vamr_a'].value:
+        raise
+        
+    torques = {}
+    torques_norm = {}
+    for key in default_torques:
+        tau = params[key].value
+        tau_norm = tau / params[norm_to].value
+        torques[key] = tau
+        torques_norm[f'{key}_norm'] = tau_norm
+        
+    return torques, torques_norm
+        
+        
+        
     
-    return out.params, params_dict, Vamr, torques, Vs_fit, Vs_plt, Va_fit, Va_plt
-
-
-
+        
 
 
 

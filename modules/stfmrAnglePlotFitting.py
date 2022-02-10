@@ -5,10 +5,10 @@ Created on Mon Feb  7 10:12:47 2022
 @author: rimmler
 """
 
-import numpy as np
 from lmfit import Model
 from scipy import constants
 import modules.functions.stfmrAnglePlotFitFunc as f
+from helpers.maths_helpers import deg2rad
 
 mu0 = constants.mu_0
 e = constants.e
@@ -17,10 +17,6 @@ hbar = constants.Planck
 def check_comps(comps):
     if comps not in ['x', 'y', 'z', 'xy', 'xz', 'yz', 'xyz']:
         raise ValueError
-
-def deg2rad(x):
-    return x * np.pi / 180
-
 
 # ____________________________________________________________________________
 def opt_V_ana_full(comps, phi_data_deg, Vs_data, Va_data, phi_fit_deg, cps):
