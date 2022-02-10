@@ -38,7 +38,7 @@ from tkinter import filedialog
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
-from helpers.stfmrHelpers import File
+from files import File
 
 
 def kittel(H0, Meff, gamma, mu0):
@@ -123,7 +123,7 @@ def fit_kittel(H0SI, f, I, P, gamma, mu0):
             transform=ax.transAxes, bbox=props, fontsize=10)
 
     plt.show()
-    fig.savefig(outputFileKittel.file_fulldir, bbox_inches="tight", dpi=plotDpi)
+    fig.savefig(outputFileKittel.fileDirName, bbox_inches="tight", dpi=plotDpi)
 
     return MeffoptCGS, MeffopterrCGS
 
@@ -163,7 +163,7 @@ def fit_gilbert(f, DeltaSI, gamma):
             transform=ax.transAxes, bbox=props, fontsize=10)
 
     plt.show()
-    fig.savefig(outputFileGilbert.file_fulldir, bbox_inches="tight", dpi=plotDpi)
+    fig.savefig(outputFileGilbert.fileDirName, bbox_inches="tight", dpi=plotDpi)
 
     return alphaopt, alphaopterr, popt, pcov
 
@@ -188,7 +188,7 @@ def lineshapeAnalysis(Vs, Va, MsSI, t, d, hbar, MeffoptSI, H0SI, Vserr, Vaerr, M
 
     plt.title('Line shape analysis')
     plt.show()
-    fig.savefig(outputFileLS1.file_fulldir, bbox_inches="tight", dpi=plotDpi)
+    fig.savefig(outputFileLS1.fileDirName, bbox_inches="tight", dpi=plotDpi)
     return SHA, SHAerr
 
 
@@ -199,12 +199,12 @@ inputFile = File(filedialog.askopenfilename(parent=root, title='Choose .csv file
 # inputFile = File('D:/ANALYSIS/Mn3SnN/ST-FMR/MA2427-1/210401/003_lineshape_15dBm/fittingOutput/000_fittingSummary.csv')
 
 outputSubdir = 'lineshapeAnaOutput/'
-outputFileGilbert = File(inputFile.filedir + '/' + outputSubdir + inputFile.filename_wo_ext + '_gilbertFit.png')
+outputFileGilbert = File(inputFile.fileDir + '/' + outputSubdir + inputFile.fileNameWOExt + '_gilbertFit.png')
 outputFileGilbert.makeDirIfNotExist()
-outputFileKittel = File(inputFile.filedir + '/' + outputSubdir + inputFile.filename_wo_ext + '_kittelFit.png')
-outputFileLS1 = File(inputFile.filedir + '/' + outputSubdir + inputFile.filename_wo_ext + '_shaPlot.png')
+outputFileKittel = File(inputFile.fileDir + '/' + outputSubdir + inputFile.fileNameWOExt + '_kittelFit.png')
+outputFileLS1 = File(inputFile.fileDir + '/' + outputSubdir + inputFile.fileNameWOExt + '_shaPlot.png')
 
-inputData = pd.read_csv(inputFile.file_fulldir,index_col=False)
+inputData = pd.read_csv(inputFile.fileDirName,index_col=False)
 
 # Fit Kittel formula to get Meff
 f = inputData['Frequency (GHz)']#.sort_values()
@@ -261,11 +261,11 @@ summary = {'g': g,
 
 outputData2 = pd.Series(summary)
 
-outputFileLS2 = File(inputFile.filedir + '/' + outputSubdir + inputFile.filename_wo_ext + '_lineshape_data.csv')
-outputFileLS3 = File(inputFile.filedir + '/' + outputSubdir + inputFile.filename_wo_ext + '_lineshape_params.csv')
+outputFileLS2 = File(inputFile.fileDir + '/' + outputSubdir + inputFile.fileNameWOExt + '_lineshape_data.csv')
+outputFileLS3 = File(inputFile.fileDir + '/' + outputSubdir + inputFile.fileNameWOExt + '_lineshape_params.csv')
 
-outputData1.to_csv(outputFileLS2.file_fulldir, index=False)
-outputData2.to_csv(outputFileLS3.file_fulldir, header=False)
+outputData1.to_csv(outputFileLS2.fileDirName, index=False)
+outputData2.to_csv(outputFileLS3.fileDirName, header=False)
 
 
 

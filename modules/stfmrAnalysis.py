@@ -1,12 +1,12 @@
 ''' Credit: Avanindra Kumar Pandeya, MPI Halle, Python God <3 '''
 
-import sys
-sys.path.append("..")
+# import sys
+# sys.path.append("..")
 import os
-from stfmrSpectraFitting import stfmrSpectraFitting
+from modules.stfmrSpectraFitting import stfmrSpectraFitting
 import numpy as np
 import matplotlib.pyplot as plt
-import stfmrRanges
+import modules.stfmrRanges as stfmrRanges
 from matplotlib import cm
 import pandas as pd
 # import tkinter as tk
@@ -71,9 +71,9 @@ class stfmrAnalysis:
     def do(self):
         outputSubfolder = '/fittingOutput'
         if self.system == 'Berthold':
-            OPFolder = self.IPFiles[0].filedir.replace('DATA', 'ANALYSIS')+outputSubfolder
+            OPFolder = self.IPFiles[0].fileDir.replace('DATA', 'ANALYSIS')+outputSubfolder
         else:
-            OPFolder = self.IPFiles[0].filedir + outputSubfolder
+            OPFolder = self.IPFiles[0].fileDir + outputSubfolder
     
         if os.path.isdir(OPFolder) == False:
             os.makedirs(OPFolder)
@@ -89,13 +89,13 @@ class stfmrAnalysis:
         colors = [ cm.gist_rainbow(x) for x in colorNumber ]
     
         if self.measMode == 1:
-            fac = pd.read_csv(self.facFile.file_fulldir)
+            fac = pd.read_csv(self.facFile.fileDirName)
             # print(fac)
     
     
         for IPFile in self.IPFiles:
-            current, dBm, frequency, name, number = self.parametersFromFileName(IPFile.file_fulldir, IPFile.filedir)
-            fileParameter[IPFile.file_fulldir] = {"i" : current, "rf": dBm, "f": frequency, "name": name, "number" : number}
+            current, dBm, frequency, name, number = self.parametersFromFileName(IPFile.fileDirName, IPFile.fileDir)
+            fileParameter[IPFile.fileDirName] = {"i" : current, "rf": dBm, "f": frequency, "name": name, "number" : number}
     
             if self.measMode == 1:
                 stageAngle = float(fac.loc[fac['file_number']==number]['angle'].to_numpy())
@@ -107,10 +107,10 @@ class stfmrAnalysis:
                 self.deviceAngle = None
                 voltageMultiplier = self.baseVoltageMultiplier
     
-            fileParameter[IPFile.file_fulldir]['deviceAngle'] = self.deviceAngle
-            fileParameter[IPFile.file_fulldir]['stageAngle'] = stageAngle
-            fileParameter[IPFile.file_fulldir]['fieldAngle'] = fieldAngle
-            fileParameter[IPFile.file_fulldir]['voltageMultiplier'] = voltageMultiplier
+            fileParameter[IPFile.fileDirName]['deviceAngle'] = self.deviceAngle
+            fileParameter[IPFile.fileDirName]['stageAngle'] = stageAngle
+            fileParameter[IPFile.fileDirName]['fieldAngle'] = fieldAngle
+            fileParameter[IPFile.fileDirName]['voltageMultiplier'] = voltageMultiplier
     
             positionFound = 0
     
@@ -122,11 +122,11 @@ class stfmrAnalysis:
     
                     leftArray = sortedInputFileArray[:index]
                     rightArray = sortedInputFileArray[index:]
-                    sortedInputFileArray = np.append(leftArray, IPFile.file_fulldir)
+                    sortedInputFileArray = np.append(leftArray, IPFile.fileDirName)
                     sortedInputFileArray = np.append(sortedInputFileArray, rightArray)
     
             if not(positionFound):
-                sortedInputFileArray = np.append(sortedInputFileArray, IPFile.file_fulldir)
+                sortedInputFileArray = np.append(sortedInputFileArray, IPFile.fileDirName)
     
         outFile1Cont = []
         for index, inputFileName in enumerate(sortedInputFileArray):
@@ -140,7 +140,7 @@ class stfmrAnalysis:
     
             IPFileObject = None
             for file in self.IPFiles:
-                if file.file_fulldir == inputFileName:
+                if file.fileDirName == inputFileName:
                     IPFileObject = file
     
             fieldArray = np.array([])
@@ -207,7 +207,7 @@ class stfmrAnalysis:
             
             
             # Lines for each file
-            with open(OPFolder + '/' + IPFileObject.filename_wo_ext + '_fit.csv', "w") as outFile2:
+            with open(OPFolder + '/' + IPFileObject.fileName + '_fit.csv', "w") as outFile2:
                 outFile2.write("stageAngle: %s mA \n" %fileParameter[inputFileName]["i"])
                 outFile2.write("Current: %s deg \n" %fileParameter[inputFileName]["stageAngle"])
                 outFile2.write("Frequency: %.2f GHz \n" %fileParameter[inputFileName]["f"])
@@ -253,7 +253,7 @@ class stfmrAnalysis:
                 ax.set_ylabel(r"$V_{mix}$ (V)")
                 ax.legend()
     
-                fig.savefig(OPFolder + '/' + IPFileObject.filename_wo_ext + '_fit.png', bbox_inches="tight", dpi=600)
+                fig.savefig(OPFolder + '/' + IPFileObject.fileNameWOExt + '_fit.png', bbox_inches="tight", dpi=600)
     
             if self.plotAllTogether != 0 :
                 ax2.plot( fieldArray, amplitudeArray - stfmrFit.V0, "o", label = legend, color = colors[index], markersize = self.mSize)
