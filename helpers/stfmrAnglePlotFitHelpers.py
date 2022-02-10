@@ -7,7 +7,8 @@ Created on Wed Aug 25 11:46:02 2021
 
 import tkinter as tk
 from tkinter import filedialog
-from helpers.stfmrHelpers import File, read_csv_Series
+from files import File
+from helpers.file_handling import read_csv_Series
 import numpy as np
 import pandas as pd
 
@@ -72,7 +73,7 @@ def norm_torques(params):
 
     return params_norm
 
-def get_cps(ipFileLocationsFile=None, print_extracted_params=False):
+def get_cps(analysisMode, ipFileLocationsFile=None, print_extracted_params=False):
     ''' Get constant parameters '''
     def get_P(PhiDepData):
         P_dBm_array = PhiDepData['rf Power (dBm)'].to_numpy()
@@ -87,18 +88,19 @@ def get_cps(ipFileLocationsFile=None, print_extracted_params=False):
         root.withdraw()
         ipFileLocationsFile = File(filedialog.askopenfilename(parent=root, title='Choose .csv file with locations of required output files'))
 
-    ipFileLocations = read_csv_Series(ipFileLocationsFile.file_fulldir)
+    ipFileLocations = read_csv_Series(ipFileLocationsFile.fileDirName)
 
     ipFileLS = File(ipFileLocations['lineshape analysis output'])
     ipFilePhiDep = File(ipFileLocations['angle dependence fitting summary'])
-    ipFileIrf = File(ipFileLocations['Irf calibration fitting output'])
-    ipFileAMR = File(ipFileLocations['AMR measurement fitting output'])
+    if analysisMode in [2]:
+        ipFileIrf = File(ipFileLocations['Irf calibration fitting output'])
+        ipFileAMR = File(ipFileLocations['AMR measurement fitting output'])
 
-    LSData = read_csv_Series(ipFileLS.file_fulldir)
-    PhiDepData = pd.read_csv(ipFilePhiDep.file_fulldir)
-    # return PhiDepData
-    IrfData = read_csv_Series(ipFileIrf.file_fulldir)
-    AMRData = read_csv_Series(ipFileAMR.file_fulldir)
+    LSData = read_csv_Series(ipFileLS.fileDirName)
+    PhiDepData = pd.read_csv(ipFilePhiDep.fileDirName)
+    if analysisMode in [2]:
+        IrfData = read_csv_Series(ipFileIrf.fileDirName)
+        AMRData = read_csv_Series(ipFileAMR.fileDirName)
 
     alpha = LSData['alphaopt']
     Meff = LSData['Meffopt (emu/cm3)'] # emu/cm3
@@ -112,12 +114,13 @@ def get_cps(ipFileLocationsFile=None, print_extracted_params=False):
     Ms = LSData['Ms (emu/cm3)']
     Ms_SI = Ms * 1e3 # A/m
 
-    m = float(IrfData['m (A/sqrt(mW))'])
-    Prf_dBm = get_P(PhiDepData)
-    Prf_mW = conv_dBm_mW(Prf_dBm)
-    Irf = m * np.sqrt(Prf_mW) # A
-
-    DeltaR = AMRData['DeltaR_fit (Ohm)']
+    if analysisMode in [2]:
+        m = float(IrfData['m (A/sqrt(mW))'])
+        Prf_dBm = get_P(PhiDepData)
+        Prf_mW = conv_dBm_mW(Prf_dBm)
+        Irf = m * np.sqrt(Prf_mW) # A
+    
+        DeltaR = AMRData['DeltaR_fit (Ohm)']
 
     cps = {
         'alpha': alpha,
@@ -128,13 +131,19 @@ def get_cps(ipFileLocationsFile=None, print_extracted_params=False):
         'Meff (emu/cm3)': Meff,
         'Meff_SI (A/m)': Meff_SI,
         'H0 (Oe)': H0,
-        'H0_SI (A/m)': H0_SI,
+        'H0_SI (A/m)': H0_SI
+        }
+    
+    if analysisMode in [2]:
+        cps2 = {
         'PL_rf (dBm)': Prf_dBm,
         'P_rf (mW)': Prf_mW,
         'm (A/sqrt(mW))': m,
         'Irf (A)': Irf,
         'DeltaR (Ohm/rad)': float(DeltaR)
         }
+        cps = cps|cps2
+    
     if print_extracted_params is True:
         print_dict(cps, title='Extracted parameters for angle-dependence fitting:')
     return cps

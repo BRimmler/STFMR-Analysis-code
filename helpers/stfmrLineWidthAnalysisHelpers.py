@@ -5,9 +5,6 @@ Created on Fri Jan  7 15:10:22 2022
 @author: rimmler
 """
 
-import tkinter as tk
-from tkinter import filedialog
-import numpy as np
 import pandas as pd
 
 
