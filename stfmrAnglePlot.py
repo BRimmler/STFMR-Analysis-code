@@ -9,7 +9,7 @@ Created on Thu Apr  1 10:29:28 2021
 # SETTINGS
 
 # Data
-select_files_ui = False # Open UI to select files. If False, specify in "ipFileLocationsFiles"
+select_files_ui = True # Open UI to select files. If False, specify in "ipFileLocationsFiles"
 
 voltageMagnitude = 'mu' # V
 plotPhiMode = 1 # 0: raw angle, 1: shifted angle
@@ -34,7 +34,7 @@ Analysis mode:
 analysisMode = 1
 norm_to = 'yFL' # Only for mode 1. Specify which torque component to normalize to.
 fit_phi_offset = True # Only implements for c-free mode
-fit_comps_list = ['xyz'] # Select assumed torque components
+fit_comps_list = ['y', 'yz', 'xyz'] # Select assumed torque components
 
 plotDpi = 600
 
@@ -52,7 +52,7 @@ import numpy as np
 import modules.stfmrAnglePlotFitting as apf
 from modules.stfmrAnglePlotFittingCFree import angleDepFittingCFree, get_norm_torques
 import helpers.stfmrAnglePlotFitHelpers as aph
-from helpers.maths_helpers import rad2deg
+from units import rad2deg
 
 inputFiles = []
 ipFileLocations = []

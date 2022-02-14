@@ -9,7 +9,7 @@ import numpy as np
 
 from lmfit import Parameters, minimize, report_fit
 from modules.functions.stfmrAnglePlotMixingEffs import comp_Vs, comp_Va
-from helpers.maths_helpers import deg2rad
+from units import deg2rad
 
 default_torques = ['xAD', 'xFL', 'yAD', 'yFL', 'zAD', 'zFL']
 

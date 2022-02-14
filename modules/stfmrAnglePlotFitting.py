@@ -8,7 +8,7 @@ Created on Mon Feb  7 10:12:47 2022
 from lmfit import Model
 from scipy import constants
 import modules.functions.stfmrAnglePlotFitFunc as f
-from helpers.maths_helpers import deg2rad
+from units import deg2rad
 
 mu0 = constants.mu_0
 e = constants.e

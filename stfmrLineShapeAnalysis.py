@@ -11,12 +11,12 @@ Created on Fri Apr 23 11:37:00 2021
 import numpy as np
 
 g = 2.07 # Lande constant of the FM [default (Permalloy): 2.07]
-t = 20. # SH material film thickness in nm
-terr = 1. # Error in SH material film thickness in nm
-d = 10. # FM thickness in nm
-derr = 1. # Error in FM thickness in nm
-Ms = 1040 # Saturation magnetization FM layer emu/cm3
-Mserr = 100 # Error in saturation magnetization FM layer emu/cm3
+t = 12. # SH material film thickness in nm
+terr = .7 # Error in SH material film thickness in nm
+d = 5. # FM thickness in nm
+derr = .5 # Error in FM thickness in nm
+Ms = 900. # Saturation magnetization FM layer emu/cm3
+Mserr = 50. # Error in saturation magnetization FM layer emu/cm3
 
 plotDpi = 600 # Resolution of plots [default: 600]
 
