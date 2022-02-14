@@ -12,8 +12,9 @@ from files import File
 
 def get_file_from_ui(title):
     root = tk.Tk()
-    root.withdraw()
     file = filedialog.askopenfilename(parent=root, title=title)
+    
+    root.withdraw()
     return file
 
 def get_ipFileLocationsFilesFromUI(analysisMode):
