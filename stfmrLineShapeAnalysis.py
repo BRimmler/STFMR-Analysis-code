@@ -18,7 +18,7 @@ derr = .5 # Error in FM thickness in nm
 Ms = 900. # Saturation magnetization FM layer emu/cm3
 Mserr = 50. # Error in saturation magnetization FM layer emu/cm3
 
-plotDpi = 600 # Resolution of plots [default: 600]
+plotDpi = 300 # Resolution of plots [default: 600]
 
 
 """ Input zone is over! Careful before changing anything unless you know what you are doing! """

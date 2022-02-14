@@ -10,19 +10,16 @@ Created on Thu Apr  1 10:29:28 2021
 
 # Data
 '''
-How to select input files:
-    Mode 0: Select each file seperately through UI
-    Mode 1: Select file that specifies all file locations
-    Mode 2: Give file locations file in code (need to know what you are doing)    
+"selectFileType"
+    How to select input files:
+        Mode 0: Select each file seperately through UI
+        Mode 1: Select file that specifies all file locations
+        Mode 2: Give file locations file in code (need to know what you are doing)    
 '''
 selectFileType = 0
 
-voltageMagnitude = 'mu' # V
-plotPhiMode = 1 # 0: raw angle, 1: shifted angle
-flipSign = False
-
 ''' 
-Analysis mode:
+"analysisMode":
     Requirements for different modes:
         a) Lineshape analysis (frequency-dependence)
         b) AMR calibration
@@ -38,10 +35,15 @@ Analysis mode:
         Requirements: a)-c)
 '''
 analysisMode = 1
-norm_to = 'yFL' # Only for mode 1. Specify which torque component to normalize to.
+
+
+voltageMagnitude = 'mu' # V
+flipSign = False
 fit_phi_offset = True # Only implements for c-free mode
 fit_comps_list = ['y', 'yz', 'xyz'] # Select assumed torque components
+norm_to = 'yFL' # Only for mode 1. Specify which torque component to normalize to.
 
+plotPhiMode = 1 # 0: raw angle, 1: shifted angle
 plotDpi = 600
 
 
