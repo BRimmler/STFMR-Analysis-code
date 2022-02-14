@@ -9,7 +9,13 @@ Created on Thu Apr  1 10:29:28 2021
 # SETTINGS
 
 # Data
-select_files_ui = True # Open UI to select files. If False, specify in "ipFileLocationsFiles"
+'''
+How to select input files:
+    Mode 0: Select each file seperately through UI
+    Mode 1: Select file that specifies all file locations
+    Mode 2: Give file locations file in code (need to know what you are doing)    
+'''
+selectFileType = 0
 
 voltageMagnitude = 'mu' # V
 plotPhiMode = 1 # 0: raw angle, 1: shifted angle
@@ -53,15 +59,19 @@ import modules.stfmrAnglePlotFitting as apf
 from modules.stfmrAnglePlotFittingCFree import angleDepFittingCFree, get_norm_torques
 import helpers.stfmrAnglePlotFitHelpers as aph
 from units import rad2deg
+from helpers.stfmrAnglePlotUIHelper import get_ipFileLocationsFilesFromUI
 
-inputFiles = []
-ipFileLocations = []
-if select_files_ui is True:
+
+if selectFileType == 0:
+    ipFileLocationsFiles = [get_ipFileLocationsFilesFromUI(analysisMode)]
+
+elif selectFileType == 1:
     root = tk.Tk()
     root.withdraw()
     ipFileLocationsFiles = [File(filedialog.askopenfilename(parent=root, 
-                                                            title='Choose .csv file with input file locations'))]
-else:
+                                                            title='Choose .csv file with input files locations'))]
+
+elif selectFileType == 2:
     ipFileLocationsFiles = [
         # File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D1_0deg\02_angle-dependence\fittingOutput\angleDependence\MA2959-2-D1_angleDep_input_files.csv'),
         # File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D3_45deg\01_angle-dependence\fittingOutput\angleDependence\MA2959-2-D3_angleDep_input_files.csv'),
@@ -69,9 +79,12 @@ else:
         # File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220203\D4_90deg\002_angle-dependence\pos_field\fittingOutput\angleDependence\MA2960-2-D4_angleDep_input_files.csv')
         
         File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\Reference_Binoy\A5_0deg_demag\fittingOutput\angleDependence\refBinoy_angleDep_input_files.csv')
-        
         ]
+else:
+    raise ValueError(f'Select files type "{selectFileType}" not defined')
 
+inputFiles = []
+ipFileLocations = []
 for ipFileLocationsFile in ipFileLocationsFiles:
     
     ipFileLocations = read_csv_Series(ipFileLocationsFile.fileDirName)
