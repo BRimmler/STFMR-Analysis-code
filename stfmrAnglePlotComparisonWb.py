@@ -11,20 +11,73 @@ Requires BRimmler/analysis-modules library (add to PATH)
 
 # ____________________________________________________________________________
 # SETTINGS
+# Project E2
+# ipFileDirNames = [
+#     r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D1_0deg\02_angle-dependence\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+#     r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D3_45deg\01_angle-dependence\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+#     r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220202\D1_0deg\003_angle-dependence\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+#     r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220203\D4_90deg\002_angle-dependence\pos_field\fittingOutput\angleDependence\c-free\fitparams_summary.csv'
+#     ]
+
+# sampleNames = ['MA2959-2-D1', 'MA2959-2-D3', 'MA2960-2-D1', 'MA2960-2-D4']
+
+# fit_comps_to_show = ['xyz']
+# analysisMode = 1 # Analysis mode used in stfmrAnglePlot for fitting of angle-dependence
+
+# opDir = r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\ProjE-synthesis\220204'
+
+# Project E2: MSN(001) before and after magsats
 ipFileDirNames = [
     r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D1_0deg\02_angle-dependence\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
-    r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D3_45deg\01_angle-dependence\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
-    r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220202\D1_0deg\003_angle-dependence\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
-    r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220203\D4_90deg\002_angle-dependence\pos_field\fittingOutput\angleDependence\c-free\fitparams_summary.csv'
+    r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220307\angle\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
     ]
 
-sampleNames = ['MA2959-2-D1', 'MA2959-2-D3', 'MA2960-2-D1', 'MA2960-2-D4']
+sampleNames = ['MA2959-2-D1', 'MA2959-2-D1-7T']
 
 fit_comps_to_show = ['xyz']
 analysisMode = 1 # Analysis mode used in stfmrAnglePlot for fitting of angle-dependence
 
+opDir = r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\ProjE-synthesis\220307_msn001_mag-demag'
 
-opDir = r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\ProjE-synthesis\220204'
+# Project F
+# ipFileDirNames = [
+#     r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220202\D1_0deg\003_angle-dependence\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+#     r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220203\D4_90deg\002_angle-dependence\pos_field\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+#     r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA3273-1\211209\1_angle-dependence\fittingOutput\angleDependence\c-free\fitparams_summary.csv'
+#     ]
+
+# sampleNames = [
+#     'MA2960-2-D1', 
+#     'MA2960-2-D4', 
+#     'MA3273-1-D1'
+#     ]
+
+# Project G
+# ipFileDirNames = [
+    # r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D1_0deg\02_angle-dependence\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+    # r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220202\D1_0deg\003_angle-dependence\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+    # r'D:\owncloud\1_Mn3SnN project\ST FMR Other samples\12 nm Mn3Sn\A5_0 deg\Rotation\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+    # r'D:\owncloud\1_Mn3SnN project\ST FMR Other samples\10 nm Mn3Pt 001\Rotation_C5_45deg\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+    # r'D:\owncloud\1_Mn3SnN project\ST FMR Other samples\10 nm Mn3Pt 111\Rotation_C5_45deg\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+    # r'D:\owncloud\1_Mn3SnN project\ST FMR Other samples\12 nm Mn3Sn Cu Py\Rotation A5_0 deg\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+    # r'D:\owncloud\1_Mn3SnN project\ST FMR Other samples\5 nm Pt Py\Rotation\fittingOutput\angleDependence\c-free\fitparams_summary.csv',
+    # ]
+
+# sampleNames = [
+    # 'MA2959-D1',
+    # 'MA2960-D1',
+    # 'MA278-A5', 
+    # 'MA2483-C5',
+    # 'MA2475-C5',
+    # 'MA1486-A5',
+    # 'MA192-BL2',
+    # ]
+
+# fit_comps_to_show = ['xyz']
+# analysisMode = 1 # Analysis mode used in stfmrAnglePlot for fitting of angle-dependence
+
+
+# opDir = r'D:\owncloud\1_Mn3SnN project\ST FMR Other samples\Analysis'
 
 # ____________________________________________________________________________
 # MODULES

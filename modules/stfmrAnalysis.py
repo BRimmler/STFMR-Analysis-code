@@ -102,9 +102,8 @@ class stfmrAnalysis:
                 fieldAngle = self.get_fieldAngle(self.deviceAngle, stageAngle)
                 voltageMultiplier = float(fac.loc[fac['file_number']==number]['V_polarity'].to_numpy()) * self.baseVoltageMultiplier
             else:
-                stageAngle = None
-                fieldAngle = None
-                self.deviceAngle = None
+                stageAngle = self.stageAngle
+                fieldAngle = self.get_fieldAngle(self.deviceAngle, self.stageAngle)
                 voltageMultiplier = self.baseVoltageMultiplier
     
             fileParameter[IPFile.fileDirName]['deviceAngle'] = self.deviceAngle

@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 helpers/temp
+demonstration_data

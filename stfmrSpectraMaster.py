@@ -8,14 +8,14 @@ Created on Wed Mar 31 13:11:49 2021
 """ This is the input zone. Here we will enter everything which needs to be entered manually """
 
 # MAIN INFO
-# Definition of angles (ignored for non-angle-dependent measurements):
-measMode = 1 # 0: normal, 1: angle-dependence (specify stageAngle in separate file)
+# Definition of angles:
+measMode = 0 # 0: normal, 1: angle-dependence (specify stageAngle in separate file)
 deviceAngle = 0 # Angle of device with respect to sample/crystal axes
 stageAngle = 45 # For angle-dependence defined in separate file
 offsetField = -16 # Oe, offset field of the magnet
 baseVoltageMultiplier = 1 # Multiplies the voltageArray. For angle dependent measurements multiplied by value specified in freq-angle-corresp. file
 
-system = '' # use to specify file system in stfmrAnalysis
+system = 'Berthold' # use to specify file system in stfmrAnalysis
 
 # ______________
 # OTHER SETTINGS
@@ -24,7 +24,7 @@ plotAllTogether = 0 # 0: Separate files for each curve, 1: Plot all curves toget
 legendMode = 3 # 0: Frequency, 1: Current, 2: rf power, 3: Current and Frequency, Any other Number: All three written together
 numberOFHeaderLines = 4
 
-#File Format Inputs
+# File Format Inputs
 hAxis = 0 # Unit Oe
 vAxis = 1 # Unit V
 mSize = 3 # Size of markers in plot

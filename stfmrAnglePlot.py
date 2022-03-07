@@ -16,7 +16,7 @@ Created on Thu Apr  1 10:29:28 2021
         Mode 1: Select file that specifies all file locations
         Mode 2: Give file locations file in code (need to know what you are doing)    
 '''
-selectFileType = 0
+selectFileType = 1
 
 ''' 
 "analysisMode":
@@ -40,7 +40,7 @@ analysisMode = 1
 voltageMagnitude = 'mu' # V
 flipSign = False
 fit_phi_offset = True # Only implements for c-free mode
-fit_comps_list = ['y', 'yz', 'xyz'] # Select assumed torque components
+fit_comps_list = ['xyz'] # Select assumed torque components
 norm_to = 'yFL' # Only for mode 1. Specify which torque component to normalize to.
 
 plotPhiMode = 1 # 0: raw angle, 1: shifted angle
