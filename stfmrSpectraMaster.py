@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 31 13:11:49 2021
+'''
+Analysis module for fitting of  ST-FMR spectra taken with RT ST-FMR setup at MPI Halle.
 
-@author: rimmler
-"""
+Author: 
+    Berthold Rimmler, 
+    Max Planck Institute of Microstructure Physics, Halle
+    Weinberg 2
+    06120 Halle
+    berthold.rimmler@mpi-halle.mpg.de
 
-""" This is the input zone. Here we will enter everything which needs to be entered manually """
+'''
+
+''' Input zone '''
 
 # MAIN INFO
 # Definition of angles:
@@ -29,9 +35,8 @@ hAxis = 0 # Unit Oe
 vAxis = 1 # Unit V
 mSize = 3 # Size of markers in plot
 
+''' Input zone ends here. '''
 #______________________________________________________________________________
-""" Input zone is over! Careful before changing anything unless you know what you are doing! """
-
 import os
 import tkinter as tk
 from tkinter import filedialog

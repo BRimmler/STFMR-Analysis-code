@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Apr 23 11:37:00 2021
+'''
+Analysis module for analysis of frequency-dependence ("line shape analysis")
 
-@author: rimmler
-"""
+Author: 
+    Berthold Rimmler, 
+    Max Planck Institute of Microstructure Physics, Halle
+    Weinberg 2
+    06120 Halle
+    berthold.rimmler@mpi-halle.mpg.de
 
-""" This is the input zone. Here we will enter everything which needs to be entered manually """
+'''
+
+''' Input zone '''
 # ____________________________________________________________________________
 # SETTINGS
 import numpy as np
@@ -21,8 +27,7 @@ Mserr = 25. # Error in saturation magnetization FM layer emu/cm3
 plotDpi = 300 # Resolution of plots [default: 600]
 
 
-""" Input zone is over! Careful before changing anything unless you know what you are doing! """
-
+''' Input zone ends here. '''
 # ____________________________________________________________________________
 # Constants
 mu0 = 4*np.pi*1e-7

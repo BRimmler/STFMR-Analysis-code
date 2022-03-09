@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Apr  1 10:29:28 2021
+'''
+Analysis module for analysis of angle-dependence
 
-@author: rimmler
-"""
+Author: 
+    Berthold Rimmler, 
+    Max Planck Institute of Microstructure Physics, Halle
+    Weinberg 2
+    06120 Halle
+    berthold.rimmler@mpi-halle.mpg.de
 
+'''
+
+''' Input zone '''
 # ____________________________________________________________________________
 # SETTINGS
 
@@ -16,7 +23,7 @@ Created on Thu Apr  1 10:29:28 2021
         Mode 1: Select file that specifies all file locations
         Mode 2: Give file locations file in code (need to know what you are doing)    
 '''
-selectFileType = 1
+selectFileType = 2
 
 ''' 
 "analysisMode":
@@ -39,14 +46,16 @@ analysisMode = 1
 
 voltageMagnitude = 'mu' # V
 flipSign = False
-fit_phi_offset = True # Only implements for c-free mode
+fit_phi_offset = False # Only implements for c-free mode
 fit_comps_list = ['xyz'] # Select assumed torque components
 norm_to = 'yFL' # Only for mode 1. Specify which torque component to normalize to.
 
 plotPhiMode = 1 # 0: raw angle, 1: shifted angle
 plotDpi = 600
 
+saveData = False
 
+''' Input zone ends here. '''
 # ____________________________________________________________________________
 # CODE
 import tkinter as tk
@@ -59,9 +68,9 @@ from helpers.file_handling import read_csv_Series
 import numpy as np
 import modules.stfmrAnglePlotFitting as apf
 from modules.stfmrAnglePlotFittingCFree import angleDepFittingCFree, get_norm_torques
-import helpers.stfmrAnglePlotFitHelpers as aph
+import stfmrHelpers.stfmrAnglePlotFitHelpers as aph
 from units import rad2deg
-from helpers.stfmrAnglePlotUIHelper import get_ipFileLocationsFilesFromUI
+from stfmrHelpers.stfmrAnglePlotUIHelper import get_ipFileLocationsFilesFromUI
 
 
 if selectFileType == 0:
@@ -80,7 +89,7 @@ elif selectFileType == 2:
         # File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220202\D1_0deg\003_angle-dependence\fittingOutput\angleDependence\MA2960-2-D1_angleDep_input_files.csv'),
         # File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2960-2\220203\D4_90deg\002_angle-dependence\pos_field\fittingOutput\angleDependence\MA2960-2-D4_angleDep_input_files.csv')
         
-        File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\Reference_Binoy\A5_0deg_demag\fittingOutput\angleDependence\refBinoy_angleDep_input_files.csv')
+        File(r'D:\owncloud\0_Personal\ANALYSIS\Mn3SnN\ST-FMR\MA2959-2\220131\D3_45deg\01_angle-dependence\fittingOutput\angleDependence\MA2959-2-D3_angleDep_input_files.csv')
         ]
 else:
     raise ValueError(f'Select files type "{selectFileType}" not defined')
@@ -142,7 +151,8 @@ for ipFileLocationsFile in ipFileLocationsFiles:
         outputFileSubdir = ipAngleDepFittingSummaryFile.fileDir + '/angleDependence/plot-only'
         outputFile = File(outputFileSubdir, ipAngleDepFittingSummaryFile.fileNameWOExt + '_anglePlot.png')
         outputFile.makeDirIfNotExist()
-        fig.savefig(outputFile.fileDirName, bbox_inches="tight", dpi=plotDpi)
+        if saveData is True:
+            fig.savefig(outputFile.fileDirName, bbox_inches="tight", dpi=plotDpi)
         
     # _________________________________________________________________________
     # ANALYSIS MODE 1
@@ -198,7 +208,8 @@ for ipFileLocationsFile in ipFileLocationsFiles:
             opParamsSum = opParamsSum.append(opParams, ignore_index=True)
     
         opParamsSum = opParamsSum.set_index('fit_comps')
-        opParamsSum.to_csv(opFileParams.fileDirName, index=True)
+        if saveData is True:
+            opParamsSum.to_csv(opFileParams.fileDirName, index=True)
     
     # _________________________________________________________________________
     # ANALYSIS MODE 0
@@ -258,7 +269,9 @@ for ipFileLocationsFile in ipFileLocationsFiles:
     
             opFileFig = File(opFileDir, 'plt_'+fit_comps+'.png')
             opFileFig.makeDirIfNotExist()
-            fig.savefig(opFileFig.fileDirName, bbox_inches="tight", dpi=plotDpi)
+            
+            if saveData is True:
+                fig.savefig(opFileFig.fileDirName, bbox_inches="tight", dpi=plotDpi)
     
             opFileCurves = File(opFileDir,'curve_'+fit_comps+'.csv')
             opFileCurves.makeDirIfNotExist()
@@ -266,7 +279,9 @@ for ipFileLocationsFile in ipFileLocationsFiles:
             opCurves['phi_plt (deg)'] = x_plt
             opCurves['Vs_plt (muV)'] = Vs_plt
             opCurves['Va_plt (muV)'] = Va_plt
-            opCurves.to_csv(opFileCurves.fileDirName, index=False)
+            
+            if saveData is True:
+                opCurves.to_csv(opFileCurves.fileDirName, index=False)
     
             opParams = pd.Series({**params, **sotr})
             opParams['fit_comps'] = fit_comps
@@ -276,7 +291,9 @@ for ipFileLocationsFile in ipFileLocationsFiles:
             opParamsSum = opParamsSum.append(opParams, ignore_index=True)
     
         opParamsSum = opParamsSum.set_index('fit_comps')
-        opParamsSum.to_csv(opFileParams.fileDirName, index=True)
+        
+        if saveData is True:
+            opParamsSum.to_csv(opFileParams.fileDirName, index=True)
 
 
 
