@@ -6,6 +6,7 @@ Created on Wed Aug 11 13:07:03 2021
 """
 
 import numpy as np
+from numpy import sin, cos, sqrt
 from scipy import constants
 
 mu0 = constants.mu_0
@@ -59,4 +60,6 @@ def Va_yz(phi, tau_yFL, tau_zAD, c_a):
 
 def Va_xyz(phi, tau_xFL, tau_yFL, tau_zAD, c_a):
     return Va_x(phi, tau_xFL, c_a) + Va_y(phi, tau_yFL, c_a) + Va_z(phi, tau_zAD, c_a)
+
+
 

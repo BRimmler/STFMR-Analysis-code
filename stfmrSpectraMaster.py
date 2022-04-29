@@ -34,6 +34,7 @@ numberOFHeaderLines = 4
 hAxis = 0 # Unit Oe
 vAxis = 1 # Unit V
 mSize = 3 # Size of markers in plot
+dpi = 300
 
 ''' Input zone ends here. '''
 #______________________________________________________________________________
@@ -45,7 +46,7 @@ from files import File
 
 def ui_get_IPFiles():
     root = tk.Tk()
-    root.withdraw()
+    # root.withdraw()
     inputFolder= filedialog.askdirectory(parent=root, title='Choose directory with input data files.')
     inputFileNames = os.listdir(inputFolder)
     root.destroy()
@@ -73,7 +74,7 @@ else:
 
 stfmrAna = stfmrAnalysis(measMode, deviceAngle, stageAngle, offsetField, IPFiles, facFile, plotAndCheck,
               plotAllTogether, legendMode, numberOFHeaderLines,
-              hAxis, vAxis, baseVoltageMultiplier, mSize, system)
+              hAxis, vAxis, baseVoltageMultiplier, mSize, system, dpi)
 stfmrAna.do()
 
 

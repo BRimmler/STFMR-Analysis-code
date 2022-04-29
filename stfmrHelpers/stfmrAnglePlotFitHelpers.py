@@ -92,15 +92,19 @@ def get_cps(analysisMode, ipFileLocationsFile=None, print_extracted_params=False
 
     ipFileLS = File(ipFileLocations['lineshape analysis output'])
     ipFilePhiDep = File(ipFileLocations['angle dependence fitting summary'])
-    if analysisMode in [2]:
+    if analysisMode in [2, 3]:
         ipFileIrf = File(ipFileLocations['Irf calibration fitting output'])
         ipFileAMR = File(ipFileLocations['AMR measurement fitting output'])
+        ipFilePhys = File(ipFileLocations['physical parameters'])
 
     LSData = read_csv_Series(ipFileLS.fileDirName)
     PhiDepData = pd.read_csv(ipFilePhiDep.fileDirName)
-    if analysisMode in [2]:
+    if analysisMode in [2, 3]:
         IrfData = read_csv_Series(ipFileIrf.fileDirName)
         AMRData = read_csv_Series(ipFileAMR.fileDirName)
+        
+    if analysisMode in [3]:
+        physData = read_csv_Series(ipFilePhys.fileDirName)
 
     alpha = LSData['alphaopt']
     Meff = LSData['Meffopt (emu/cm3)'] # emu/cm3
@@ -114,7 +118,7 @@ def get_cps(analysisMode, ipFileLocationsFile=None, print_extracted_params=False
     Ms = LSData['Ms (emu/cm3)']
     Ms_SI = Ms * 1e3 # A/m
 
-    if analysisMode in [2]:
+    if analysisMode in [2, 3]:
         m = float(IrfData['m (A/sqrt(mW))'])
         Prf_dBm = get_P(PhiDepData)
         Prf_mW = conv_dBm_mW(Prf_dBm)
@@ -134,7 +138,7 @@ def get_cps(analysisMode, ipFileLocationsFile=None, print_extracted_params=False
         'H0_SI (A/m)': H0_SI
         }
     
-    if analysisMode in [2]:
+    if analysisMode in [2, 3]:
         cps2 = {
         'PL_rf (dBm)': Prf_dBm,
         'P_rf (mW)': Prf_mW,
@@ -143,6 +147,12 @@ def get_cps(analysisMode, ipFileLocationsFile=None, print_extracted_params=False
         'DeltaR (Ohm/rad)': float(DeltaR)
         }
         cps = cps|cps2
+        
+    if analysisMode in [3]:
+        cps3 = {
+        'g_e': physData['g_e']
+        }
+        cps = cps|cps3
     
     if print_extracted_params is True:
         print_dict(cps, title='Extracted parameters for angle-dependence fitting:')

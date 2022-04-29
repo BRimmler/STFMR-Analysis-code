@@ -122,8 +122,3 @@ def get_sotr(torques, cps):
 
 
 
-
-
-
-
-

@@ -15,7 +15,7 @@ import pandas as pd
 class stfmrAnalysis:
     def __init__(self, measMode, deviceAngle, stageAngle, offsetField, IPFiles, facFile, plotANdCheck, 
                  plotAllTogether, legendMode, numberOFHeaderLines, hAxis, vAxis, 
-                 baseVoltageMultiplier, mSize, system='default'):
+                 baseVoltageMultiplier, mSize, system='default', dpi=600):
         self.measMode = measMode
         self.deviceAngle = deviceAngle
         self.stageAngle = stageAngle
@@ -30,7 +30,8 @@ class stfmrAnalysis:
         self.vAxis = vAxis
         self.baseVoltageMultiplier = baseVoltageMultiplier
         self.mSize = mSize
-        self.system = system        
+        self.system = system       
+        self.dpi = dpi
         
     # ____________________________________________________________________________
     # Functions
@@ -160,7 +161,7 @@ class stfmrAnalysis:
                 ax.legend()
     
                 plt.show()
-                fig.savefig(inputFileName + "_rawData.png", bbox_inches="tight", dpi=600)
+                fig.savefig(inputFileName + "_rawData.png", bbox_inches="tight", dpi=self.dpi)
     
                 minRange = float(input ("Type the MINIMUM field value for fitting\n"))
                 maxRange = float(input ("Type the MAXIMUM field value for fitting\n"))
@@ -252,7 +253,7 @@ class stfmrAnalysis:
                 ax.set_ylabel(r"$V_{mix}$ (V)")
                 ax.legend()
     
-                fig.savefig(OPFolder + '/' + IPFileObject.fileNameWOExt + '_fit.png', bbox_inches="tight", dpi=600)
+                fig.savefig(OPFolder + '/' + IPFileObject.fileNameWOExt + '_fit.png', bbox_inches="tight", dpi=self.dpi)
     
             if self.plotAllTogether != 0 :
                 ax2.plot( fieldArray, amplitudeArray - stfmrFit.V0, "o", label = legend, color = colors[index], markersize = self.mSize)
@@ -263,8 +264,8 @@ class stfmrAnalysis:
                 ax2.set_xlabel("Magnetic Field (Oe)")
                 ax2.set_ylabel(r"$V_{mix}$ (V)")
                 ax2.legend()
-                fig2.savefig( "toProcess/" + fileParameter[inputFileName]["name"] + "fitting_together.png", bbox_inches="tight", dpi=600)
-                fig2.savefig( "toProcess/" + fileParameter[inputFileName]["name"] + "fitting_together.eps", bbox_inches="tight", dpi=600)
+                fig2.savefig( "toProcess/" + fileParameter[inputFileName]["name"] + "fitting_together.png", bbox_inches="tight", dpi=self.dpi)
+                fig2.savefig( "toProcess/" + fileParameter[inputFileName]["name"] + "fitting_together.eps", bbox_inches="tight", dpi=self.dpi)
     
         self.outFile1Cont = pd.DataFrame(outFile1Cont)
         self.outFile1Cont.to_csv(OPSummaryFileDir, index=False)
