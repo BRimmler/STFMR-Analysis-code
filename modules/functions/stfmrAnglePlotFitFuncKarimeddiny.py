@@ -55,6 +55,34 @@ def Va(phi, Vamr, alpha, w1, w2, wp,
     Va = Vamr/(2*alpha*wp)*sin(2*phi)*sqrt(w2/w1)*tau_z_val
     return Va
 
+# Mode 4: XX and XY
+def Vsxx(phi, Irf, Ramr, Tart, alpha, w1, w2, wp, W,
+            tau_xDL, tau_xFL, tau_yDL, tau_yFL, tau_zDL, tau_zFL):
+    tau_x_val = tau_x(phi, tau_xDL, tau_yDL, tau_zFL)
+    tau_z_val = tau_z(phi, tau_xFL, tau_yFL, tau_zDL)
+    Vs = Irf*Ramr/(2*alpha*wp)*sin(2*phi)*tau_x_val + Tart*W/((alpha*wp)**2)*sin(phi)*(w1*tau_x_val**2+w2*tau_z_val**2)
+    return Vs
+
+def Vaxx(phi, Irf, Ramr, alpha, w1, w2, wp,
+            tau_xDL, tau_xFL, tau_yDL, tau_yFL, tau_zDL, tau_zFL):
+    tau_z_val = tau_z(phi, tau_xFL, tau_yFL, tau_zDL)
+    Va = Irf*Ramr/(2*alpha*wp)*sin(2*phi)*sqrt(w2/w1)*tau_z_val
+    return Va
+
+def Vsxy(phi, Irf, Rphe, Rahe, Tart, alpha, w1, w2, wp, L,
+            tau_xDL, tau_xFL, tau_yDL, tau_yFL, tau_zDL, tau_zFL):
+    tau_x_val = tau_x(phi, tau_xDL, tau_yDL, tau_zFL)
+    tau_z_val = tau_z(phi, tau_xFL, tau_yFL, tau_zDL)
+    Vs = Irf/(2*alpha*wp)*(-Rphe*cos(2*phi)*tau_x_val + Rahe*tau_z_val) + Tart*L/((alpha*wp)**2)*cos(phi)*(w1*tau_x_val**2+w2*tau_z_val**2)
+    return Vs
+
+def Vaxy(phi, Irf, Rphe, Rahe, alpha, w1, w2, wp,
+            tau_xDL, tau_xFL, tau_yDL, tau_yFL, tau_zDL, tau_zFL):
+    tau_x_val = tau_x(phi, tau_xDL, tau_yDL, tau_zFL)
+    tau_z_val = tau_z(phi, tau_xFL, tau_yFL, tau_zDL)
+    Va = Irf/(2*alpha*wp)*sqrt(w2/w1)*(-Rphe*cos(2*phi)*tau_z_val - Rahe*tau_x_val)
+    return Va
+
 
 
 

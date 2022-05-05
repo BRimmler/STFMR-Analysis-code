@@ -92,10 +92,14 @@ def get_cps(analysisMode, ipFileLocationsFile=None, print_extracted_params=False
 
     ipFileLS = File(ipFileLocations['lineshape analysis output'])
     ipFilePhiDep = File(ipFileLocations['angle dependence fitting summary'])
-    if analysisMode in [2, 3]:
+    if analysisMode in [2, 3, 4]:
         ipFileIrf = File(ipFileLocations['Irf calibration fitting output'])
         ipFileAMR = File(ipFileLocations['AMR measurement fitting output'])
         ipFilePhys = File(ipFileLocations['physical parameters'])
+        
+    if analysisMode in [4]:
+        ipFilePHE = File(ipFileLocations['PHE measurement fitting output'])
+        ipFileAHE = File(ipFileLocations['AHE measurement fitting output'])
 
     LSData = read_csv_Series(ipFileLS.fileDirName)
     PhiDepData = pd.read_csv(ipFilePhiDep.fileDirName)
@@ -103,7 +107,11 @@ def get_cps(analysisMode, ipFileLocationsFile=None, print_extracted_params=False
         IrfData = read_csv_Series(ipFileIrf.fileDirName)
         AMRData = read_csv_Series(ipFileAMR.fileDirName)
         
-    if analysisMode in [3]:
+    if analysisMode in [4]:
+        PHEData = read_csv_Series(ipFilePHE.fileDirName)
+        AHEData = read_csv_Series(ipFileAHE.fileDirName)
+        
+    if analysisMode in [3, 4]:
         physData = read_csv_Series(ipFilePhys.fileDirName)
 
     alpha = LSData['alphaopt']
@@ -118,14 +126,18 @@ def get_cps(analysisMode, ipFileLocationsFile=None, print_extracted_params=False
     Ms = LSData['Ms (emu/cm3)']
     Ms_SI = Ms * 1e3 # A/m
 
-    if analysisMode in [2, 3]:
+    if analysisMode in [2, 3, 4]:
         m = float(IrfData['m (A/sqrt(mW))'])
         Prf_dBm = get_P(PhiDepData)
         Prf_mW = conv_dBm_mW(Prf_dBm)
         Irf = m * np.sqrt(Prf_mW) # A
     
         DeltaR = AMRData['DeltaR_fit (Ohm)']
-
+        
+    if analysisMode in [4]:
+        DeltaRphe = PHEData['DeltaR_fit (Ohm)']
+        DeltaRahe = AHEData['DeltaR_fit (Ohm)']
+        
     cps = {
         'alpha': alpha,
         't (m)': t,
@@ -144,15 +156,23 @@ def get_cps(analysisMode, ipFileLocationsFile=None, print_extracted_params=False
         'P_rf (mW)': Prf_mW,
         'm (A/sqrt(mW))': m,
         'Irf (A)': Irf,
-        'DeltaR (Ohm/rad)': float(DeltaR)
+        'DeltaR (Ohm/rad)': float(DeltaR),
+        'DeltaRamr (Ohm/rad)': float(DeltaR)
         }
         cps = cps|cps2
         
-    if analysisMode in [3]:
+    if analysisMode in [3, 4]:
         cps3 = {
         'g_e': physData['g_e']
         }
         cps = cps|cps3
+        
+    if analysisMode in [4]:
+        cps4 = {
+        'DeltaRphe (Ohm/rad)': float(DeltaRphe),
+        'DeltaRahe (Ohm/rad)': float(DeltaRahe)
+        }
+        cps = cps|cps4
     
     if print_extracted_params is True:
         print_dict(cps, title='Extracted parameters for angle-dependence fitting:')

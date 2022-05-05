@@ -31,6 +31,8 @@ selectFileType = 2
         a) Lineshape analysis (frequency-dependence)
         b) AMR calibration
         c) Irf calibration
+        d) PHE and AHE calibration
+    
     Mode 0:
         Plotting mode. Requires only angle-dependent data
     Mode 1:
@@ -40,17 +42,31 @@ selectFileType = 2
     Mode 2:
         Quantitative fitting. Torques have quantitative meaning. 
         Requirements: a)-c)
-    Mode 3 (WORK IN PROGRESS):
+    Mode 3:
         Semi-quantitative fitting with generalized Karimeddiny artifact description.
         Requirements: a)-c)
+    Mode 4:
+        Semi-quantitative fitting with generalized Karimeddiny artifact descirption 
+        in XX and XY direction.
+        Requirements: a)-d)
 '''
-analysisMode = 3
+analysisMode = 4
+
+'''
+"Vset_mode":
+    Only for analysisMode 4.
+    Specify which data to use for fitting.
+    0: Vsxx, Vaxx, Vsxy
+    1: Vsxx, Vaxx, Vaxy
+'''
+Vset_mode = 0
+    
 
 
 voltageMagnitude = 'mu' # V
 flipSign = False
 fit_phi_offset = False # Only implements for c-free mode
-fit_comps_list = ['y','xyz'] # Select assumed torque components
+fit_comps_list = ['xyz'] # Select assumed torque components
 assume_arts = True
 norm_to = 'yFL' # Only for mode 1. Specify which torque component to normalize to.
 
@@ -74,6 +90,7 @@ import numpy as np
 import modules.stfmrAnglePlotFitting as apf
 from modules.stfmrAnglePlotFittingCFree import angleDepFittingCFree, get_norm_torques
 from modules.stfmrKarimeddinyFitting import V_Karimeddiny_fitting, get_norm_torques_karimed, calc_Ru
+from modules.stfmrKarimeddinyHallFitting import V_Karimeddiny_Hall_fitting, get_norm_torques_karimed, calc_Ru
 import stfmrHelpers.stfmrAnglePlotFitHelpers as aph
 from units import rad2deg
 from stfmrHelpers.stfmrAnglePlotUIHelper import get_ipFileLocationsFilesFromUI
@@ -109,6 +126,10 @@ for ipFileLocationsFile in ipFileLocationsFiles:
     ipAngleDepFittingSummaryFile = File(ipFileLocations['angle dependence fitting summary'])
     # Get input data
     inputData = pd.read_csv(ipAngleDepFittingSummaryFile.fileDirName,index_col=False)
+    if analysisMode == 4:
+        # Get additional data from XY measurement
+        ipAngleDepFittingXYSummaryFile = File(ipFileLocations['angle dependence fitting summary transversal'])
+        inputDataXY = pd.read_csv(ipAngleDepFittingXYSummaryFile.fileDirName,index_col=False)
     
     # Extract important collumns
     if voltageMagnitude == 'mu':
@@ -127,6 +148,11 @@ for ipFileLocationsFile in ipFileLocationsFiles:
     
             Vs = inputData['Vsym (V)']
             Vas = inputData['Vas (V)']
+            if analysisMode == 4:
+                Vsxx = Vs
+                Vaxx = Vas
+                Vsxy = inputDataXY['Vsym (V)']
+                Vaxy = inputDataXY['Vas (V)']
     
         elif plotPhiMode == 1:
             x =  inputData.sort_values(by='fieldAngle (deg)')['fieldAngle (deg)']
@@ -321,10 +347,6 @@ for ipFileLocationsFile in ipFileLocationsFiles:
             phiDepPlt.scatter(x, Vs/voltageDivider, label='Vs_data')
             phiDepPlt.scatter(x, Vas/voltageDivider, label='Va_data')
             
-            fig, ax = plt.subplots()
-            ax.scatter(x, Vs/voltageDivider, label='Vs')
-            ax.scatter(x, Vas/voltageDivider, label='Vas')
-    
             x_plt = np.linspace(0, 360, 100)
             
             # Get constant parameters
@@ -375,57 +397,93 @@ for ipFileLocationsFile in ipFileLocationsFiles:
         if saveData is True:
             opParamsSum.to_csv(opFileParams.fileDirName, index=True)
             
-        #     # fparams, Vs_fit, Vs_plt, Va_fit, Va_plt = apf.opt_V_Karimeddiny(fit_comps, x, Vs, Vas, x_plt, cps)
-    
-        #     # ax.plot(x_plt, Vs_plt/voltageDivider, label='Vs fit ('+fit_comps+', $R^2=${:.3f})'.format(Vs_r2))
-        #     # ax.plot(x_plt, Va_plt/voltageDivider, label='Vas fit ('+fit_comps+', $R^2=${:.3f})'.format(Va_r2))
-        #     ax.plot(x_plt, Vs_plt/voltageDivider, label='Vs fit ('+fit_comps+')')
-        #     ax.plot(x_plt, Va_plt/voltageDivider, label='Vas fit ('+fit_comps+')')
-            
-    
-        #     boxtext = 'Fit param: \n\n'
-    
-        #     for key, param in params.items():
-        #         boxtext += f'{key}={params}'
-        #     boxtext = boxtext[:-1]
-    
-        #     props = dict(boxstyle='round', facecolor='white', alpha=0.5)
-        #     ax.text(1.03, 1, boxtext, verticalalignment='top',
-        #             transform=ax.transAxes, bbox=props, fontsize=10)
-    
-        #     ax.set_title('I = {} mA, f = {} GHz, P = {} dBm \nAssumed components: {}'.format(I, f, P, fit_comps))
-        #     ax.set_xlabel(x_label)
-        #     ax.set_ylabel(y_label)
-        #     ax.legend()
-        #     ax.set_xticks(np.arange(0, 361, delta_phi))
-    
-        #     opFileFig = File(opFileDir, 'plt_'+fit_comps+'.png')
-        #     opFileFig.makeDirIfNotExist()
-            
-        #     if saveData is True:
-        #         fig.savefig(opFileFig.fileDirName, bbox_inches="tight", dpi=plotDpi)
-    
-        #     opFileCurves = File(opFileDir,'curve_'+fit_comps+'.csv')
-        #     opFileCurves.makeDirIfNotExist()
-        #     opCurves = pd.DataFrame()
-        #     opCurves['phi_plt (deg)'] = x_plt
-        #     opCurves['Vs_plt (muV)'] = Vs_plt
-        #     opCurves['Va_plt (muV)'] = Va_plt
-            
-        #     if saveData is True:
-        #         opCurves.to_csv(opFileCurves.fileDirName, index=False)
-    
-        #     opParams = pd.Series({**fparams, **sotr})
-        #     opParams['fit_comps'] = fit_comps
-        #     opParams['Vs_r2'] = Vs_r2
-        #     opParams['Va_r2'] = Va_r2
-    
-        #     opParamsSum = opParamsSum.append(opParams, ignore_index=True)
-    
-        # opParamsSum = opParamsSum.set_index('fit_comps')
+    # _________________________________________________________________________
+    # ANALYSIS MODE 4
+    elif analysisMode == 3:
+        ''' Semi-quantitative fitting with generalized Karimeddiny artifact description in XX and XY direction '''
         
-        # if saveData is True:
-        #     opParamsSum.to_csv(opFileParams.fileDirName, index=True)
+        opFileDir = ipAngleDepFittingSummaryFile.fileDir + '/angleDependence/karimeddiny'
+        opFileParams = File(opFileDir, 'fitparams_summary.csv')
+        opParamsSum = pd.DataFrame()
+        
+        
+        for fit_comps in fit_comps_list:
+            title = 'I = {} mA, f = {} GHz, P = {} dBm \nAssumed components: {}, assume artifacts: {}'.format(I, f, P, fit_comps, assume_arts)
+            phiDepPlt = GenPlot(mode='vstack-share-x', title=title, xlabel=x_label, dpi=plotDpi)
+            phiDepPlt.ax[0].set_xticks(np.arange(0, 361, delta_phi))
+            phiDepPlt.scatter(x, Vsxx/voltageDivider, axis=0, label='Vsxx_data')
+            phiDepPlt.scatter(x, Vaxx/voltageDivider,  axis=0, label='Vaxx_data')
+            phiDepPlt.scatter(x, Vsxy/voltageDivider, axis=1, label='Vsxy_data')
+            phiDepPlt.scatter(x, Vaxy/voltageDivider,  axis=1, label='Vay_data')
+            
+            x_plt = np.linspace(0, 360, 100)
+            
+            # Get constant parameters
+            cps = aph.get_cps(4, ipFileLocationsFile)
+            
+            # Fit
+            fitting_output = V_Karimeddiny_Hall_fitting(fit_comps, x, Vset_mode, Vs, Vas, x_plt, cps, assume_arts=assume_arts)
+            params, params_dict, Vsxx_fit, Vsxx_plt, Vaxx_fit, Vaxx_plt, Vsxy_fit, Vsxy_plt, Vaxy_fit, Vaxy_plt = fitting_output
+            torques, torques_norm = get_norm_torques_karimed(params, norm_to)
+            
+            # Fit quality:
+            Ru_sxx = calc_Ru(Vsxx, Vsxx_fit)
+            Ru_axx = calc_Ru(Vaxx, Vaxx_fit)
+            Ru_sxy = calc_Ru(Vsxy, Vsxy_fit)
+            Ru_axy = calc_Ru(Vaxy, Vaxy_fit)
+            
+            # Plot
+            phiDepPlt.plot(x_plt, Vsxx_plt/voltageDivider, axis=0, label=f'Vsxx_fit_{fit_comps}')
+            phiDepPlt.plot(x_plt, Vaxx_plt/voltageDivider, axis=0, label=f'Vaxx_fit_{fit_comps}')
+            phiDepPlt.plot(x_plt, Vsxy_plt/voltageDivider, axis=1, label=f'Vsxy_fit_{fit_comps}')
+            phiDepPlt.plot(x_plt, Vaxy_plt/voltageDivider, axis=1, label=f'Vaxy_fit_{fit_comps}')
+            
+            box = BoxText(1.03, 1)
+            box.add_text('Fitted params:')
+            box.add_empty_line()
+            box.add_param('Tart', params_dict['Tart'], rep='e')
+            
+            for key, param in torques.items():
+                box.add_param(key, param)              
+            for key, param in torques_norm.items():
+                box.add_param(key, param)
+                
+            box.add_empty_line()
+            box.add_param('Ru_sxx', Ru_sxx*100, unit=' %', rep='f')
+            box.add_param('Ru_axx', Ru_axx*100, unit=' %', rep='f')
+            box.add_param('Ru_sxy', Ru_sxy*100, unit=' %', rep='f')
+            box.add_param('Ru_axy', Ru_axy*100, unit=' %', rep='f')
+                
+            phiDepPlt.make_boxtext(box)
+    
+            opFileFig = File(opFileDir, f'plt_{fit_comps}_arts={assume_arts}.png')
+            opFileFig.makeDirIfNotExist()
+            phiDepPlt.report(opFileFig.fileDir, opFileFig.fileName, saveData=True)
+            
+            opParams = pd.Series(params_dict|torques_norm)
+            opParams['fit_comps'] = fit_comps
+            opParams['assume_arts'] = assume_arts
+            opParams['Vset_mode'] = Vset_mode
+            opParams['Ru_sxx'] = Ru_sxx
+            opParams['Ru_axx'] = Ru_axx
+            opParams['Ru_sxy'] = Ru_sxy
+            opParams['Ru_axy'] = Ru_axy
+    
+            opParamsSum = opParamsSum.append(opParams, ignore_index=True)
+    
+        opParamsSum = opParamsSum.set_index('fit_comps')
+        if saveData is True:
+            opParamsSum.to_csv(opFileParams.fileDirName, index=True)
+
+
+
+
+
+
+
+
+
+
 
 
 

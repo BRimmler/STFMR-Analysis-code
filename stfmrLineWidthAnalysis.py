@@ -44,7 +44,7 @@ from helpers.file_handling import read_csv_Series
 from scipy.optimize import curve_fit
 from files import File
 from plots import GenPlot, BoxText
-from scipy import constants
+from scipy.constants import hbar, e, mu_0, physical_constants
 import outputs as op
 
 # Get data and sample
@@ -71,7 +71,7 @@ else:
         ipFittingOutputFiles[str(i).zfill(2)] = ipFittingOutputFile
     
 ipLineshapeAnaOutputFile = File(ipFileLocations['lineshape analysis output'])
-ipLineshapeFittingOutputFile = File(ipFileLocations['lineshape raw fitting output'])
+# ipLineshapeFittingOutputFile = File(ipFileLocations['lineshape raw fitting output'])
 ipResistivitiesFile = File(ipFileLocations['resistivities'])
 ipDeviceDimsFile = File(ipFileLocations['device dimensions'])
 
@@ -83,7 +83,7 @@ for winWidthFact, ipFittingOutputFile in ipFittingOutputFiles.items():
     # Get frequency and angle
     f_data = ipFittingOutput['Frequency (GHz)']
     if len(f_data.unique()) > 1:
-        raise ValueError('Frenquency is not constant.')
+        raise ValueError('Frequency is not constant.')
     f = f_data.unique()[0]*1e9 # to Hz
     
     phi_data = ipFittingOutput['fieldAngle (deg)']
@@ -106,9 +106,7 @@ for winWidthFact, ipFittingOutputFile in ipFittingOutputFiles.items():
         C[f'H0_{key} (Oe)'] = data['Hres (Oe)'].mean()
         C[f'H0Error_{key} (Oe)'] = data['HresError (Oe)'].mean()
         
-        
-    
-    ipLineshapeFittingOutput = pd.read_csv(ipLineshapeFittingOutputFile.fileDirName, index_col='Index')
+    # ipLineshapeFittingOutput = pd.read_csv(ipLineshapeFittingOutputFile.fileDirName, index_col='Index')
     
     ipLineshapeAnaOutput = read_csv_Series(ipLineshapeAnaOutputFile.fileDirName)
     C = {**C, **ipLineshapeAnaOutput}
@@ -119,6 +117,13 @@ for winWidthFact, ipFittingOutputFile in ipFittingOutputFiles.items():
     device_dimensions = read_csv_Series(ipDeviceDimsFile.fileDirName).to_dict()
     C = {**C, **device_dimensions}
     
+    # Lineshape: g_e to gamma
+    def gamma(g_e):
+        mu_B = physical_constants['Bohr magneton'][0]
+        return g_e * mu_B / hbar
+    
+    gamma = gamma(C['g'])
+    C['gamma (C/kg)'] = gamma
     
     # Linear fit dDelta over dIdc
     def fDelta(Idc, m, b):
@@ -144,18 +149,15 @@ for winWidthFact, ipFittingOutputFile in ipFittingOutputFiles.items():
     for key in ['neg', 'pos']:
         C[f'H0_{key} (A/m)'] = C[f'H0_{key} (Oe)'] / (4*np.pi * 1e-3)
         C[f'H0Error_{key} (A/m)'] = C[f'H0Error_{key} (Oe)'] / (4*np.pi * 1e-3)
-        C[f'm_Delta_{key} (1/m)'] = C[f'm_Delta_{key} (Oe/mA)'] / (4*np.pi*1e-6)
-        C[f'm_Delta_{key}_err (1/m)'] = C[f'm_Delta_{key}_err (Oe/mA)'] / (4*np.pi*1e-6)
+        C[f'm_Delta_{key} (1/m)'] = C[f'm_Delta_{key} (Oe/mA)'] * 1e6/(4*np.pi)
+        C[f'm_Delta_{key}_err (1/m)'] = C[f'm_Delta_{key}_err (Oe/mA)'] * 1e6/(4*np.pi)
     
     
     # Calculate SHA
     
     # m_halpha from parameters from previous fitting and input parameters
-    def calc_m_alpha(f, g, phi, Ms, t, H0, Meff, MsErr, tErr, H0Err, MeffErr):
-        hbar = constants.hbar
-        e = constants.e
-        mu_0 = constants.mu_0
-        c1 = 2*np.pi*f/g*hbar/(2*e)
+    def calc_m_alpha(f, gamma, phi, Ms, t, H0, Meff, MsErr, tErr, H0Err, MeffErr):
+        c1 = 2*np.pi*f/gamma*hbar/(2*e)
         sin_phi = np.sin(phi*np.pi/180)
         c2 = mu_0*Ms*t*(H0 + 0.5*Meff)
         c2_err = mu_0*np.sqrt(
@@ -174,7 +176,7 @@ for winWidthFact, ipFittingOutputFile in ipFittingOutputFiles.items():
             Ms *= -1    # Ms and Meff become negative (matters for term in bracket)
             Meff *= -1
             
-        m_alpha, m_alpha_err = calc_m_alpha(C['f (Hz)'], C['g'], C['phi (deg)'], Ms, C['t (m)'],
+        m_alpha, m_alpha_err = calc_m_alpha(C['f (Hz)'], C['gamma (C/kg)'], C['phi (deg)'], Ms, C['t (m)'],
                                         C[f'H0_{key} (A/m)'], Meff, C['MsError (A/m)'], 
                                         C['tError (m)'], C[f'H0Error_{key} (A/m)'], C['MeffoptError (A/m)'])
         
@@ -182,13 +184,18 @@ for winWidthFact, ipFittingOutputFile in ipFittingOutputFiles.items():
         C[f'm_alpha_{key}_err'] = m_alpha_err
     
     # Resistance ratio from resistivities input file
-    def calc_RR(rho_FM, rho_SHM, rho_FM_err, rho_SHM_err):
-        rr = 1 + rho_SHM / rho_FM
-        rr_err = np.sqrt((rho_SHM_err/rho_FM)**2+(rho_SHM*rho_FM_err/rho_FM**2)**2)
+    def calc_RR(rho_FM, rho_SHM, t_FM, t_SHM, rho_FM_err, rho_SHM_err, t_FM_err, t_SHM_err):
+        rr = 1 + rho_SHM * t_SHM / (rho_FM * t_FM)
+        rr_err = np.sqrt(
+            (rho_SHM_err*t_SHM/(rho_FM*t_FM))**2+(rho_SHM*t_SHM*rho_FM_err/(rho_FM**2*t_FM))**2
+                         +(rho_SHM*t_SHM_err/(rho_FM*t_FM))**2+(rho_SHM*t_SHM*t_FM_err/(rho_FM*t_FM**2))**2
+                         )
         return rr, rr_err
     
     rr, rr_err = calc_RR(C['rho_fm (muOhmcm)'], C['rho_shm (muOhmcm)'], 
-                         C['rho_fm_err (muOhmcm)'], C['rho_shm_err (muOhmcm)'])
+                         C['d (m)'], C['t (m)'],
+                         C['rho_fm_err (muOhmcm)'], C['rho_shm_err (muOhmcm)'],
+                         C['dError (m)'], C['tError (m)'])
     
     C['rr'] = rr
     C['rr_err'] = rr_err
@@ -207,8 +214,8 @@ for winWidthFact, ipFittingOutputFile in ipFittingOutputFiles.items():
     A_dev, A_dev_err = calc_A_dev(C['device_width (um)'], C['device_height (nm)'], 
                             C['device_width_error (um)'], C['device_height_error (nm)'])
     
-    C['A_dev'] = A_dev
-    C['A_dev_err'] = A_dev_err
+    C['A_dev (m2)'] = A_dev
+    C['A_dev_err (m2)'] = A_dev_err
     
     
     # Spin-Hall angle
@@ -222,8 +229,8 @@ for winWidthFact, ipFittingOutputFile in ipFittingOutputFiles.items():
     SHA = {}
     SHA_err = {}
     for key in ['neg', 'pos']:
-        sha, sha_err = calc_SHA(C[f'm_Delta_{key} (1/m)'], C[f'm_alpha_{key}'], C['rr'], C['A_dev'],
-                                C[f'm_Delta_{key}_err (1/m)'], C[f'm_alpha_{key}_err'], C['rr_err'], C['A_dev_err'])
+        sha, sha_err = calc_SHA(C[f'm_Delta_{key} (1/m)'], C[f'm_alpha_{key}'], C['rr'], C['A_dev (m2)'],
+                                C[f'm_Delta_{key}_err (1/m)'], C[f'm_alpha_{key}_err'], C['rr_err'], C['A_dev_err (m2)'])
         SHA[key] = sha
         SHA_err[key] = sha_err
         C[f'SHA_{key}'] = sha
